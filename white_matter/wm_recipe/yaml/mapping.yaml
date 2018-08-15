@@ -1,0 +1,12 @@
+connection_mapping:
+  - name: type_1
+    noise:
+      - type: uniform
+        widths:
+          - x: 200.0
+            y: 0.0
+            z: 200.0
+    scaling:
+      - x: 1.0
+        y: 0.01
+        z: 1.0

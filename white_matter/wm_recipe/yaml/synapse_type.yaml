@@ -1,0 +1,40 @@
+synapse_types:
+    - name: type_1
+      physiology:
+        - phys_parameter: U
+          distribution:
+            - type: truncated_gaussian
+              dist_parameters:
+                - mean: 0.45
+                - std: 0.15
+        - phys_parameter: D
+          distribution:
+            - type: truncated_gaussian
+              dist_parameters:
+                - mean: 650.0
+                  std: 15
+        - phys_parameter: F
+          distribution:
+            - type: truncated_gaussian
+              dist_parameters:
+                - mean: 17.0
+                  std: 2.25
+        - phys_parameter: gsyn
+          distribution:
+            - type: truncated_gaussian
+              dist_parameters:
+                - mean: 0.79
+                  std: 0.7
+        - phys_parameter: nrrp
+          distribution:
+            - type: uniform_int
+              dist_parameters:
+                - min: 1
+                  max: 4
+        - phys_parameter: dtc
+          distribution:
+            - type: truncated_gaussian
+              dist_parameters:
+                - mean: 1.74
+                  std: 0.425
+

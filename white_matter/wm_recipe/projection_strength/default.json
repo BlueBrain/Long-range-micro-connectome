@@ -1,0 +1,18 @@
+{
+  "cbar_width": [0, 3041],
+  "cbar_height": 12,
+  "cbar_values": [-3.5, 0.5],
+  "cbar_filename": "../img/per_layer_cbar.PNG",
+  "cbar_kwargs": {"vals_nan": [[57, 56, 56], [166,166,166]]},
+
+  "per_layer_module_separators": [0, 8, 9, 17, 22, 26, 27],
+  "per_layer_mat_height": 27,
+  "per_layer_filename_ipsi": "../img/per_layer_%s_ipsi.png",
+  "per_layer_filename_contra": "../img/per_layer_%s_contra.png",
+
+  "threshold_fraction": 0.05,
+
+  "scaling": {"region": "SSp-ll", "value": 0.15},
+
+  "h5_cache": "projection_matrices.h5"
+}
