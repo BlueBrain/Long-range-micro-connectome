@@ -2,13 +2,14 @@ from setuptools import setup, find_packages
 
 
 def find_scripts():
-    scripts = ['bin/write_recipe.py']
+    scripts = ['bin/write_wm_recipe.py',
+               'bin/write_projection_mapping_cache.py']
     return scripts
 
 
 setup(
     name='white_matter',
-    version='0.91',
+    version='0.92',
     install_requires=[],
     packages=find_packages(),
     include_package_data=True,
