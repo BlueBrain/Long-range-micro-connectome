@@ -1,7 +1,10 @@
 {
-  "mat_tree_topology": "normalized connection density",
-  "mat_predict_innervation": "normalized connection strength",
-  "func_predict_innervation": "(x ** 0.5) / 4",
-  "json_cache": "tree_model_final.json",
-  "p_func": "10 ** -x"
+  "PTypes":
+  {
+    "mat_tree_topology": "normalized connection density",
+    "mat_predict_innervation": "normalized connection strength",
+    "func_predict_innervation": "(x ** 0.5) / 4",
+    "json_cache": "tree_model_final.json",
+    "p_func": "10 ** -x"
+  }
 }

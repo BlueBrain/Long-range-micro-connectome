@@ -1,28 +1,31 @@
 {
-  "layer_profile_filename": "../img/layer_profile%d.png",
-  "layer_profile_cbar_filename": "../img/relative_density_cbar.png",
-  "layer_profile_shape": [1, 5],
-  "layer_profile_cbar_width": [0, 1635],
-  "layer_profile_cbar_height": 30,
-  "layer_profile_cbar_values": [0, 3],
-  "layer_profile_cbar_kwargs": {},
-  "layer_profile_number": 6,
+  "LayerProfiles":
+  {
+    "layer_profile_filename": "../img/layer_profile%d.png",
+    "layer_profile_cbar_filename": "../img/relative_density_cbar.png",
+    "layer_profile_shape": [1, 5],
+    "layer_profile_cbar_width": [0, 1635],
+    "layer_profile_cbar_height": 30,
+    "layer_profile_cbar_values": [0, 3],
+    "layer_profile_cbar_kwargs": {},
+    "layer_profile_number": 6,
 
-  "rel_frequency_filename": "../img/relative_frequency_%s.png",
-  "rel_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
-  "rel_frequency_cbar_width": [15, 1160],
-  "rel_frequency_cbar_height": 15,
-  "rel_frequency_cbar_values": {"0.0": 0.0, "0.5": 1.0, "1.0": 3.0},
-  "rel_frequency_shape": [6, 1],
-  "rel_frequency_cbar_kwargs": {},
+    "rel_frequency_filename": "../img/relative_frequency_%s.png",
+    "rel_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
+    "rel_frequency_cbar_width": [15, 1160],
+    "rel_frequency_cbar_height": 15,
+    "rel_frequency_cbar_values": {"0.0": 0.0, "0.5": 1.0, "1.0": 3.0},
+    "rel_frequency_shape": [6, 1],
+    "rel_frequency_cbar_kwargs": {},
 
-  "module_frequency_filename": "../img/module_rel_frequency_%s.png",
-  "module_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
-  "module_frequency_cbar_width": [15, 1160],
-  "module_frequency_cbar_height": 15,
-  "module_frequency_cbar_values": {"0.0": 0.0, "0.5": 1.0, "1.0": 3.0},
-  "module_frequency_shape": [6, 1],
-  "module_frequency_cbar_kwargs": {}
+    "module_frequency_filename": "../img/module_rel_frequency_%s.png",
+    "module_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
+    "module_frequency_cbar_width": [15, 1160],
+    "module_frequency_cbar_height": 15,
+    "module_frequency_cbar_values": {"0.0": 0.0, "0.5": 1.0, "1.0": 3.0},
+    "module_frequency_shape": [6, 1],
+    "module_frequency_cbar_kwargs": {}
 
 
+  }
 }

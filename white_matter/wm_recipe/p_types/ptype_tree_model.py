@@ -346,7 +346,7 @@ class TreeInnervationModel(object):
             import os
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
         with open(cfg_file, 'r') as fid:
-            cfg = json.load(fid)
+            cfg = json.load(fid)["PTypes"]
         cfg["json_cache"] = __treat_path(cfg["json_cache"])
         return cls.from_config(cfg)
 

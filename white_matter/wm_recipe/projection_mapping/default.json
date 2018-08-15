@@ -1,12 +1,15 @@
 {
-  "class": "VoxelArrayBaryMapper",
-  "target_args": {"normalize": 1},
-  "pp_use": {"per_pixel": 0, "exponent": 2.1, "normalize": 1.25, "log": 0},
-  "pp_display": {"per_pixel": 0, "exponent": 2.1, "normalize": 1.25, "log": 0},
-  "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
-  "prepare_args": {},
-  "plot_dir": "/home/reimann/Documents/plots/white_matter/voxel_mapping2",
-  "plot_extension": ".png",
-  "h5_fn": "voxel_mappings.h5",
-  "hemi_mirror_at": 136
+  "ProjectionMapping":
+  {
+    "class": "VoxelArrayBaryMapper",
+    "target_args": {"normalize": 1},
+    "pp_use": {"per_pixel": 0, "exponent": 2.1, "normalize": 1.25, "log": 0},
+    "pp_display": {"per_pixel": 0, "exponent": 2.1, "normalize": 1.25, "log": 0},
+    "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
+    "prepare_args": {},
+    "plot_dir": "/home/reimann/Documents/plots/white_matter/voxel_mapping2",
+    "plot_extension": ".png",
+    "h5_fn": "voxel_mappings.h5",
+    "hemi_mirror_at": 136
+  }
 }

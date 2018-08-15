@@ -5,7 +5,7 @@ import h5py, numpy
 def read_config(fn):
     with open(fn, 'r') as fid:
         ret = json.load(fid)
-    return ret
+    return ret["ProjectionMapping"]
 
 
 class ProjectionMapper(object):

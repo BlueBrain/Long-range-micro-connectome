@@ -2,7 +2,7 @@ def read_config(fn):
     import json
     with open(fn, 'r') as fid:
         ret = json.load(fid)
-    return ret
+    return ret["ProjectionStrength"]
 
 
 class ProjectionStrength(object):

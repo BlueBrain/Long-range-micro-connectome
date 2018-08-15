@@ -634,7 +634,7 @@ if __name__ == "__main__":
     import os
     cfg_file = sys.argv[1]
     with open(cfg_file, 'r') as fid:
-        cfg = json.load(fid)
+        cfg = json.load(fid)["ProjectionMapping"]
     cfg["cfg_root"] = os.path.split(cfg_file)[0]
     obj = make_mapper(cfg)
     if len(sys.argv) > 2:
