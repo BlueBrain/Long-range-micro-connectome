@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from white_matter.wm_recipe.layer_profiles import LayerProfiles, ProfileMixer
 from white_matter.wm_recipe.p_types import TreeInnervationModel
 from white_matter.wm_recipe.projection_mapping import ProjectionMapper

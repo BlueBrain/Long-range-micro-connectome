@@ -10,7 +10,8 @@ def find_scripts():
 setup(
     name='white_matter',
     version='0.92',
-    install_requires=[],
+    install_requires=['h5py', 'allensdk==0.14.5', 'simplejson', 'mouse-connectivity-models==0.0.1',
+                      'numpy', 'progressbar', 'PyYAML', 'scipy==1.0.0', ],
     packages=find_packages(),
     include_package_data=True,
     scripts=find_scripts(),

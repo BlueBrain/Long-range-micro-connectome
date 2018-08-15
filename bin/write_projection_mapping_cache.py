@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy
 import logging
 from white_matter.wm_recipe.region_mapper import RegionMapper
