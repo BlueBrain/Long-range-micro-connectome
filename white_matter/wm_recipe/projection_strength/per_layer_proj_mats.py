@@ -10,7 +10,19 @@ def treat_path(fn):
     return fn
 
 
-def per_layer_proj_mats(cfg, M_i, M_c, scale=True):
+def deactivate_where_volume_is_zero(mats, vol_dict, mpr):
+    for k, mat in mats.items():
+        d = dict(k)
+        for i, reg in enumerate(mpr.region_names):
+            src_str = d['src_type']
+            if src_str.startswith('5'):
+                src_str = '5'
+            if vol_dict[reg][src_str] == 0:
+                mat[i, :] = 0.0
+
+
+
+def per_layer_proj_mats(cfg, M_i, M_c, scale=True, vol_dict=None):
     mpr = RegionMapper()
     per_layer_cbar = (tuple(cfg["cbar_width"]), cfg["cbar_height"], tuple(cfg["cbar_values"]))
     per_layer_cbar_kwargs = cfg["cbar_kwargs"]
@@ -73,6 +85,8 @@ def per_layer_proj_mats(cfg, M_i, M_c, scale=True):
 
     FINAL = dict([((('hemi', 'ipsi'), ('src_type', k)), scaled_submats(M_i, I[k])) for k in mpr.source_names]
                  + [((('hemi', 'contra'), ('src_type', k)), scaled_submats(M_c, C[k])) for k in mpr.source_names])
+    if vol_dict is not None:
+        deactivate_where_volume_is_zero(FINAL, vol_dict, mpr)
 
     '''APPLY CUTOFF TO REMOVE VERY WEAK PROJECTIONS. CUTOFF SELECTED SUCH THAT 5% OF THE TOTAL DENSITY IS LOST'''
     all_str_vals = numpy.hstack([x.flatten() for x in FINAL.values()])

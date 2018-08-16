@@ -90,7 +90,8 @@ class ProjectionStrength(object):
         from .per_layer_proj_mats import per_layer_proj_mats
         M_i = self.__call__(hemi="ipsi", src_type="wild_type", measurement=measurement)
         M_c = self.__call__(hemi="contra", src_type="wild_type", measurement=measurement)
-        res = per_layer_proj_mats(self.cfg, M_i, M_c, scale=(measurement == "connection density"))
+        res = per_layer_proj_mats(self.cfg, M_i, M_c, scale=(measurement == "connection density"),
+                                  vol_dict=self.layer_volume_fractions())
         with h5py.File(self.cfg["h5_cache"], 'r+') as h5:
             for k, v in res.items():
                 D = dict(k)
