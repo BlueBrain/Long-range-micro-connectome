@@ -1,12 +1,13 @@
 import numpy
 
 class ProjectionWriter(object):
-    def __init__(self, mpr, namer, proj_str, profile_mixer, mapper):
+    def __init__(self, mpr, namer, proj_str, profile_mixer, mapper, syn_types):
         self.mpr = mpr
         self.namer = namer
         self.proj_str = proj_str
         self.profile_mixer = profile_mixer
         self.mapper = mapper
+        self.syn_types = syn_types
 
     '''def iterate_per_module(self, reg_fr, source_name, hemi):
         row = self.proj_str(src_type=source_name, hemi=hemi, measurement='connection density')[self.mpr.region2idx(reg_fr)]
@@ -46,14 +47,17 @@ class ProjectionWriter(object):
         str_pop = '\t\t  population: %s\n'
         str_den = '\t\t  densitiy: %s\n'
         str_l_prof = '\t\t  target_layer_profiles:\n\t\t\t- name: %s\n\t\t\t  fraction: 1.0\n'
-        str_s_type = '\t\t  synapse_types:\n\t\t\t- name: type_1\n\t\t\t  fraction: 1.0\n'
+        str_s_type = '\t\t  synapse_types:\n\t\t\t- name: %s\n\t\t\t  fraction: 1.0\n'
 
         str_src_coords = '\t\t- base_system: %s\n\t\t  x: %s\n\t\t  y: %s\n'
         str_tgt_coords = '\t\t\t\t- base_system: %s\n\t\t\t\t  x: %s\n\t\t\t\t  y: %s\n'
         str_presyn_mapping = '\t\t  presynaptic_mapping:\n\t\t\t- mapping_variance: %6.5f\n'
         str_con_mapping = '\t\t  connection_mapping:\n\t\t\t- type: type_1\n'
 
-        def single_entry(base_name, hemisphere, tgt, tgt_full_name, density, l_prof, mapping_data):
+        def single_entry(base_name, hemisphere,
+                         tgt, tgt_full_name,
+                         density, l_prof,
+                         mapping_data, syn_type):
             fid.write(str_proj_name % self.namer.comb_hemi(base_name, hemisphere))
             fid.write(str_src_fltr)
             fid.write(str_hemi % hemisphere)
@@ -64,7 +68,7 @@ class ProjectionWriter(object):
             coordinate_system((x, y, base_sys), str_tgt_coords, '\t\t\t  ')
             fid.write(str_con_mapping)
             fid.write(str_l_prof % ("profile_%d" % l_prof))
-            fid.write(str_s_type)
+            fid.write(str_s_type % str(syn_type))
             fid.write('\n')
 
         def coordinate_system(coord_sys_data, pat, prefix):
@@ -85,5 +89,6 @@ class ProjectionWriter(object):
                 fid.write('\t  targets:\n')
                 for hemi in ['ipsi', 'contra']:
                     for base_name, tgt, tgt_full_name, dens_value, l_prof in func(reg_fr, source_name, hemi):
-                        single_entry(base_name, hemi, tgt, tgt_full_name, dens_value, l_prof, mapping_data)
+                        single_entry(base_name, hemi, tgt, tgt_full_name,
+                                     dens_value, l_prof, mapping_data, self.syn_types[source_name])
         fid.write('\n')

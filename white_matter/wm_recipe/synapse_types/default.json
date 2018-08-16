@@ -1,0 +1,13 @@
+{
+  "SynapseTypes":
+  {
+    "synapse_type_yaml": "../yaml/synapse_type.yaml",
+    "synapse_type_mapping":{
+      "23": "type_1",
+      "4": "type_2",
+      "5pt": "type_3",
+      "5it": "type_4",
+      "6": "type_5"
+    }
+  }
+}

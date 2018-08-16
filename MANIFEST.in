@@ -47,5 +47,6 @@ include white_matter/wm_recipe/projection_mapping/voxel_mappings.h5
 include white_matter/wm_recipe/projection_strength/default.json
 include white_matter/wm_recipe/projection_strength/projection_matrices.h5
 include white_matter/wm_recipe/projection_strength/relative_layer_volumes.json
+include white_matter/wm_recipe/synapse_types/default.json
 include white_matter/wm_recipe/yaml/mapping.yaml
 include white_matter/wm_recipe/yaml/synapse_type.yaml
