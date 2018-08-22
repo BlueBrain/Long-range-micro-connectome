@@ -17,7 +17,10 @@ class ProjectionMapper(object):
         if not os.path.isabs(self.cfg["h5_fn"]):
             self.cfg["h5_fn"] = os.path.join(os.path.split(__file__)[0], self.cfg["h5_fn"])
         if not os.path.exists(self.cfg["h5_fn"]):
-            raise Exception("Mapping cache does not exist: %s! Create it using write_projection_mapping_cache.py" % self.cfg["h5_fn"])
+            import subprocess, logging
+            logging.getLogger(__file__).warning("Mapping cache does not exist at %s! Creating it now..." % self.cfg["h5_fn"])
+            subprocess.check_call(["write_projection_mapping_cache.py", cfg_file])
+            assert os.path.exists(self.cfg["h5_fn"]), "Mapping cache still missing!"
 
     def move_to_left_hemi(self, x):
         x_out = x.copy()
