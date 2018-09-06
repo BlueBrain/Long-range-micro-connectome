@@ -1,1 +1,1 @@
-from ptype_tree_model import TreeInnervationModel
+from ptype_tree_model import TreeInnervationModel, TreeInnervationModelCollection

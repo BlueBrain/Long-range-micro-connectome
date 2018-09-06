@@ -325,7 +325,7 @@ class GeneralProjectionMapper(object):
                                full_output=True)
         final_error = numpy.abs(sol[2]['fvec']).mean()
         info_log.info("\tMean final error is %f" % final_error)
-        from .contract import contract, estimate_mapping_var
+        from white_matter.wm_recipe.projection_mapping.contract import contract, estimate_mapping_var
         x_out, y_out, map_var = contract(sol[0][:3], sol[0][3:], xy, #numpy.sqrt(1/numpy.mean(abc, axis=0)),
                                          info_log)
         col_sys = BarycentricColors(x_out, y_out)

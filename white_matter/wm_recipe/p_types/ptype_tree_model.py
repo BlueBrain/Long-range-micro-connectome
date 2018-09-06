@@ -139,6 +139,13 @@ def get_out_edges(T, node, type='down'):
             if T.edges[_e]['type'] == type]
 
 
+def make_bidirectional(T):
+    for e in T.edges:
+        tmp = T.edges[e].copy()
+        tmp['type'] = 'up'
+        T.add_edge(e[1], e[0], **tmp)
+
+
 def con_mat2cluster_tree(M, radial=True):
     import community
     gamma = numpy.linspace(0, 12.75, 1001)
@@ -148,14 +155,11 @@ def con_mat2cluster_tree(M, radial=True):
     P = numpy.vstack([numpy.array([_part[i] for i in range(M.shape[0])]) for _part in partitions])
     P = numpy.vstack([numpy.zeros(P.shape[1], dtype=int), P, numpy.arange(P.shape[1], dtype=int)])
     T = make_tree(gamma, P)
+    make_bidirectional(T)
     if radial:
         pos_dict = layout_radial_tree(T, get_root(T))
     else:
         pos_dict = layout_tree(T, get_root(T))
-    for e in T.edges:
-        tmp = T.edges[e].copy()
-        tmp['type'] = 'up'
-        T.add_edge(e[1], e[0], **tmp)
     return T, pos_dict
 
 
@@ -205,9 +209,11 @@ def fit_and_merge_pair(T, pair, W, ND, L):
     #a1 = n1['w_out'][n2['contents']].mean()
     #a2 = n2['w_out'][n1['contents']].mean()
     b = numpy.array([x_out, x_in, a1, a2])
+    print N, b
     ir, jr, ri, rj = numpy.linalg.lstsq(N, b, rcond=None)[0]
 
     def _updater(e, val):
+        #print e.get('log_p', numpy.NaN), val
         val = numpy.maximum(val, 0.0)
         e['log_p'] = numpy.nanmean([e.get('log_p', numpy.NaN), val])
     _updater(T.edges[(pair[0], r)], -ir)
@@ -242,12 +248,18 @@ def fit_tree_to_mat(T, M):
 
 
 class TreeInnervationModel(object):
-    def __init__(self, T, p_func=lambda x: 10**-x):
+    def __init__(self, T, p_func=lambda x: 10**-x, val_mask=None):
         from white_matter.wm_recipe.region_mapper import RegionMapper
         self.mpr = RegionMapper()
         self.T = T
         self.p_func = p_func
         self.leaves = get_leaves(self.T)
+        self._M1 = None
+        if val_mask is None:
+            self._val_mask = numpy.ones((len(self.leaves), len(self.leaves)), dtype=bool)
+        else:
+            self._val_mask = val_mask
+
 
     def grow_from(self, idx, coming_from=[]):
         if isinstance(idx, str) or isinstance(idx, unicode):
@@ -297,10 +309,16 @@ class TreeInnervationModel(object):
         return [(_reg, 'ipsi') for _reg in self.mpr.region_names] +\
                 [(_reg, 'contra') for _reg in self.mpr.region_names]
 
-    def first_order_mat(self):
+    def _first_order_mat(self):
         M = self.p_func(tree2dist_mat(self.T, weight='log_p'))
         M[numpy.eye(M.shape[0]) == 1] = numpy.NaN
         return M
+
+    def first_order_mat(self):
+        if self._M1 is None:
+            self._M1 = self._first_order_mat()
+            self._M1[~self._val_mask] = 0.0
+        return self._M1
 
     def to_json(self, fn, overwrite=False):
         import json, os
@@ -312,9 +330,20 @@ class TreeInnervationModel(object):
 
     @classmethod
     def from_con_mats(cls, mat_topology, mat_weights, **kwargs):
+        mat_topology[numpy.isnan(mat_topology)] = 0.0 #TODO: Instead mask out
+        mat_weights[numpy.isnan(mat_weights)] = 0.0
         T, pos_dict = con_mat2cluster_tree(mat_topology, radial=True)
-        W, ND = fit_tree_to_mat(T, mat_weights)
-        return cls(T, **kwargs)
+        epsilon = mat_weights[mat_weights > 0].min()
+        W, ND = fit_tree_to_mat(T, mat_weights + epsilon)
+        mdl_tmp = cls(T)
+        M1 = mdl_tmp.first_order_mat()
+        M1[mat_weights == 0] = 0.0
+        sbtrct = numpy.log10(numpy.polyfit(M1[~numpy.isnan(M1)],
+                                           mat_weights[~numpy.isnan(M1)], 1)[0])
+        for e in T.edges:
+            if T.edges[e]['log_p'] > sbtrct and T.edges[e]['log_p'] > 0.0:
+                T.edges[e]['log_p'] = T.edges[e]['log_p'] - sbtrct
+        return cls(T, val_mask=(mat_weights > 0), **kwargs)
 
     @classmethod
     def from_json(cls, fn, **kwargs):
@@ -327,28 +356,42 @@ class TreeInnervationModel(object):
 
     @classmethod
     def from_config(cls, cfg):
-        import os, json
-        if not os.path.exists(cfg["json_cache"]):
+        import os, h5py
+        if not os.path.exists(cfg["json_cache"]) or not os.path.exists(cfg["h5_cache"]):
             raise NotImplementedError("I will implement this later!")
-        ret = cls.from_json(cfg["json_cache"]) #TODO: read p_func from cfg
+        h5 = h5py.File(str(cfg["h5_cache"]), 'r')
+        val_mask = h5[str(cfg["h5_dset"])][:]
+        ret = cls.from_json(cfg["json_cache"], val_mask=val_mask) #TODO: read p_func from cfg
         ret.cfg = cfg
         return ret
 
+
+class TreeInnervationModelCollection(object):
+    def __init__(self, mdl_dict):
+        self._mdl_dict = mdl_dict
+
+    def __getitem__(self, item):
+        return self._mdl_dict[item]
+
     @classmethod
     def from_config_file(cls, cfg_file=None):
-        import json
+        import json, os
+
+        if cfg_file is None:
+            cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
 
         def __treat_path(fn):
             if not os.path.isabs(fn):
-                fn = os.path.join(os.path.split(__file__)[0], fn)
+                fn = os.path.join(os.path.split(cfg_file)[0], fn)
             return fn
-        if cfg_file is None:
-            import os
-            cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
         with open(cfg_file, 'r') as fid:
             cfg = json.load(fid)["PTypes"]
-        cfg["json_cache"] = __treat_path(cfg["json_cache"])
-        return cls.from_config(cfg)
+        mdl_dict = {}
+        for k in cfg.keys():
+            cfg[k]["json_cache"] = __treat_path(cfg[k]["json_cache"])
+            cfg[k]["h5_cache"] = __treat_path(cfg[k]["h5_cache"])
+            mdl_dict[k] = TreeInnervationModel.from_config(cfg[k])
+        return cls(mdl_dict)
 
 
 

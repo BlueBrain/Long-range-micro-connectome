@@ -39,7 +39,12 @@ include white_matter/wm_recipe/img/relative_frequency_6.png
 include white_matter/wm_recipe/img/relative_frequency_cbar.png
 include white_matter/wm_recipe/layer_profiles/default.json
 include white_matter/wm_recipe/p_types/default.json
-include white_matter/wm_recipe/p_types/tree_model_final.json
+include white_matter/wm_recipe/p_types/tree_model_final_23.json
+include white_matter/wm_recipe/p_types/tree_model_final_4.json
+include white_matter/wm_recipe/p_types/tree_model_final_5pt.json
+include white_matter/wm_recipe/p_types/tree_model_final_5it.json
+include white_matter/wm_recipe/p_types/tree_model_final_6.json
+include white_matter/wm_recipe/p_types/tree_model_final.h5
 include white_matter/wm_recipe/projection_mapping/default.json
 include white_matter/wm_recipe/projection_mapping/mapping_cfg.json
 include white_matter/wm_recipe/projection_mapping/mapping_cfg_voxel.json

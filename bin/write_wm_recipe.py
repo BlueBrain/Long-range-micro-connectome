@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from white_matter.wm_recipe.layer_profiles import LayerProfiles, ProfileMixer
-from white_matter.wm_recipe.p_types import TreeInnervationModel
+from white_matter.wm_recipe.p_types import TreeInnervationModelCollection
 from white_matter.wm_recipe.projection_mapping import ProjectionMapper
 from white_matter.wm_recipe.projection_strength import ProjectionStrength
 from white_matter.wm_recipe.synapse_types import SynapseTypes
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     l_prof = LayerProfiles(cfg_file=cfg_file)
     P = ProjectionStrength(cfg_file=cfg_file)
     mixer = ProfileMixer(P, cfg_file=cfg_file)
-    p_type_mdl = TreeInnervationModel.from_config_file(cfg_file=cfg_file)
+    p_type_mdl = TreeInnervationModelCollection.from_config_file(cfg_file=cfg_file)
     mapper = ProjectionMapper(cfg_file=cfg_file)
     syn_types = SynapseTypes(cfg_file=cfg_file)
     namer = ProjectionNamer()

@@ -1,16 +1,16 @@
 import numpy
 
 class PTypeWriter(object):
-    def __init__(self, mpr, namer, p_type_mdl, proj_str, interaction_thresh=2.5):
-        self.p_type_mdl = p_type_mdl
+    def __init__(self, mpr, namer, p_type_mdls, proj_str, interaction_thresh=2.5):
+        self.p_type_mdls = p_type_mdls
         self.mpr = mpr
         self.namer = namer
         self.proj_str = proj_str
-        self.func = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0)
+        #self.func = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0)
         self.thresh = interaction_thresh
 
     def src_mat(self, src):
-        measurement = self.p_type_mdl.cfg["mat_predict_innervation"]
+        measurement = self.p_type_mdls.cfg["mat_predict_innervation"]
         predict_fun = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0) #TODO: read from config
         M = numpy.hstack([self.proj_str(src_type=src, hemi=hemi,
                                         measurement=measurement)
@@ -52,15 +52,17 @@ class PTypeWriter(object):
             fid.write('\n')
 
         fid.write("p-types:\n")
-        src_mats = dict([(src, self.src_mat(src)) for src in self.mpr.source_names])
-        for reg_from in self.mpr.region_names:
-            print "Getting interactions for %s" % reg_from
-            M_i = self.p_type_mdl.interaction_mat(reg_from, no_redundant=True)
-            M_i[M_i < self.thresh] = 1.0
-            for source_name in self.mpr.source_names:
+        for source_name in self.mpr.source_names:
+            p_type_mdl = self.p_type_mdls[source_name]
+            src_mat = p_type_mdl.first_order_mat()
+            for reg_from in self.mpr.region_names:
+                print "Getting interactions for %s" % reg_from
+                M_i = p_type_mdl.interaction_mat(reg_from, no_redundant=True)
+                M_i[M_i < self.thresh] = 1.0
+
                 proj_list = [self.namer.projection(reg_from, source_name, _x[0], hemi=_x[1])
-                             for _x in self.p_type_mdl.region_hemi_names()]
-                proj_fracs = src_mats[source_name][self.mpr.region2idx(reg_from)]
+                             for _x in p_type_mdl.region_hemi_names()]
+                proj_fracs = src_mat[self.mpr.region2idx(reg_from)]
                 valid1 = proj_fracs > 0
                 if not numpy.any(valid1):
                     print "Nothing for %s, %s" % (reg_from, source_name)
@@ -74,4 +76,5 @@ class PTypeWriter(object):
                 interact_vals = interact_vals[numpy.triu_indices_from(interact_vals, 1)]
                 single_entry(self.namer.comb_pop(reg_from, source_name), proj_list,
                              proj_fracs, interact_list, interact_vals)
+            fid.write("\n")
         fid.write("\n")
