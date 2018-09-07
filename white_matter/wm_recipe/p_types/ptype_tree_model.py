@@ -328,6 +328,22 @@ class TreeInnervationModel(object):
         with open(fn, 'w') as fid:
             json.dump(nx.node_link_data(self.T), fid)
 
+    def draw(self, **kwargs):
+        from matplotlib import pyplot as plt
+        from white_matter.wm_recipe import region_mapper
+        ax = plt.figure(figsize=(9, 9)).add_axes([0, 0, 1, 1])
+        mpr = region_mapper.RegionMapper()
+        pos = layout_radial_tree(self.T, get_root(self.T), length=['log_p'])
+        lbls = dict(enumerate(mpr.region_names))
+        lbls.update(dict([(i + len(mpr.region_names), v) for i, v in enumerate(mpr.region_names)]))
+        cols = [[0.95, 0.5, 0.5] for _ in range(len(mpr.region_names))]
+        cols.extend([[0.5, 0.5, 1.0] for _ in range(len(mpr.region_names))])
+        cols.extend([[0.7, 0.7, 0.7] for _ in range(len(self.T.nodes) - 2 * len(mpr.region_names))])
+        szs = [50.0] * 2 * len(mpr.region_names) + [20.0] * (len(self.T.nodes) - 2 * len(mpr.region_names))
+        nx.draw_networkx(self.T, pos, font_size=8, labels=lbls, node_color=cols, node_size=szs, ax=ax, **kwargs)
+        plt.axis('equal')
+        plt.axis('off')
+
     @classmethod
     def from_con_mats(cls, mat_topology, mat_weights, **kwargs):
         mat_topology[numpy.isnan(mat_topology)] = 0.0 #TODO: Instead mask out
@@ -335,6 +351,9 @@ class TreeInnervationModel(object):
         T, pos_dict = con_mat2cluster_tree(mat_topology, radial=True)
         epsilon = mat_weights[mat_weights > 0].min()
         W, ND = fit_tree_to_mat(T, mat_weights + epsilon)
+        for n in get_leaves(T):
+            for e in T.out_edges(n):
+                T.edges[e]['log_p'] = 0.0
         mdl_tmp = cls(T)
         M1 = mdl_tmp.first_order_mat()
         M1[mat_weights == 0] = 0.0
@@ -392,30 +411,6 @@ class TreeInnervationModelCollection(object):
             cfg[k]["h5_cache"] = __treat_path(cfg[k]["h5_cache"])
             mdl_dict[k] = TreeInnervationModel.from_config(cfg[k])
         return cls(mdl_dict)
-
-
-
-
-
-
-#PREDICTION OF SECOND ORDER INTERACTIONS OF TREE MODEL
-#MOVED TO TreeInnervationModel!!!!!!
-'''def get_interaction_strength(T, axon_from, r1, r2, weight='log_p'):
-    p1 = nx.algorithms.shortest_path(T, axon_from, r1, weight=weight)
-    p2 = nx.algorithms.shortest_path(T, axon_from, r2, weight=weight)
-    idxx = numpy.nonzero([_p in p2 for _p in p1])[0][-1]
-    dl = nx.algorithms.shortest_path_length(T, p1[idxx], r2, weight=weight)\
-         - nx.algorithms.shortest_path_length(T, axon_from, r2, weight=weight)
-    return 10 ** -dl
-
-
-def interaction_mat(T, axon_from):
-    leaves = get_leaves(T)
-    M = numpy.zeros((len(leaves), len(leaves)))
-    for i, l1 in enumerate(leaves):
-        for j, l2 in enumerate(leaves):
-            M[i, j] = get_interaction_strength(T, axon_from, l1, l2)
-    return M'''
 
 
 #VALIDATION OF TREE MODEL

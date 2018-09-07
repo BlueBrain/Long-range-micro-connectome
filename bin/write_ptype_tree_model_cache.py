@@ -31,7 +31,7 @@ def src_mat(proj_str, src, measurement):
 
 
 def make_model_for_source(S, src, cfg):
-    from white_matter.wm_recipe.p_types.ptype_tree_model import con_mat2cluster_tree, fit_tree_to_mat, TreeInnervationModel
+    from white_matter.wm_recipe.p_types.ptype_tree_model import TreeInnervationModel
     F_topo = src_mat(S, src, cfg["mat_tree_topology"])
     F = src_mat(S, src, cfg["mat_predict_innervation"])
     mdl = TreeInnervationModel.from_con_mats(F_topo, F)
