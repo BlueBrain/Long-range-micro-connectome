@@ -42,17 +42,15 @@ class ProjectionWriter(object):
         str_src_fltr = '\t\t  source_filters: []\n'
         str_proj_name = '\t\t- projection_name: %s\n'
         str_hemi = '\t\t  hemisphere: %s\n'
-        str_pops = '\t\t  populations: %s\n'
-        str_dens = '\t\t  densities: %s\n'
         str_pop = '\t\t  population: %s\n'
-        str_den = '\t\t  densitiy: %s\n'
+        str_den = '\t\t  density: %s\n'
         str_l_prof = '\t\t  target_layer_profiles:\n\t\t\t- name: %s\n\t\t\t  fraction: 1.0\n'
         str_s_type = '\t\t  synapse_types:\n\t\t\t- name: %s\n\t\t\t  fraction: 1.0\n'
 
-        str_src_coords = '\t\t- base_system: %s\n\t\t  x: %s\n\t\t  y: %s\n'
-        str_tgt_coords = '\t\t\t\t- base_system: %s\n\t\t\t\t  x: %s\n\t\t\t\t  y: %s\n'
-        str_presyn_mapping = '\t\t  presynaptic_mapping:\n\t\t\t- mapping_variance: %6.5f\n'
-        str_con_mapping = '\t\t  connection_mapping:\n\t\t\t- type: type_1\n'
+        str_src_coords = '\t\t  base_system: %s\n\t\t  x: %s\n\t\t  y: %s\n'
+        str_tgt_coords = '\t\t\t\t  base_system: %s\n\t\t\t\t  x: %s\n\t\t\t\t  y: %s\n'
+        str_presyn_mapping = '\t\t  presynaptic_mapping:\n\t\t\t  mapping_variance: %6.5f\n'
+        str_con_mapping = '\t\t  connection_mapping:\n\t\t\t  type: type_1\n'
 
         def single_entry(base_name, hemisphere,
                          tgt, tgt_full_name,

@@ -39,10 +39,10 @@ class PTypeWriter(object):
             fid.write('\t- population: %s\n' % population)
             fid.write('\t  fractions:\n')
             for tgt, frac in zip(lst_tgts, lst_fractions):
-                fid.write('\t\t- %s: %f\n' % (tgt, frac))
+                fid.write('\t\t  %s: %f\n' % (tgt, frac))
             if len(interact_vals) > 0:
                 fid.write('\t  interaction_mat:\n')
-                fid.write('\t\t- projections: [%s' % interact_tgts[0])
+                fid.write('\t\t  projections: [%s' % interact_tgts[0])
                 for tgt in interact_tgts[1:]:
                     fid.write(',\n\t\t                %s' % tgt)
                 fid.write(']\n')
