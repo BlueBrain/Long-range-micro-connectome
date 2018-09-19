@@ -209,7 +209,7 @@ def fit_and_merge_pair(T, pair, W, ND, L):
     #a1 = n1['w_out'][n2['contents']].mean()
     #a2 = n2['w_out'][n1['contents']].mean()
     b = numpy.array([x_out, x_in, a1, a2])
-    print N, b
+    #print N, b
     ir, jr, ri, rj = numpy.linalg.lstsq(N, b, rcond=None)[0]
 
     def _updater(e, val):

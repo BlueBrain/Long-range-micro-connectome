@@ -7,7 +7,7 @@ class PopulationWriter(object):
         def single_population(reg_name):
             fid.write('\t- name: ' + self.namer.comb_pop(reg_name, 'ALL_LAYERS') + '\n')
             fid.write('\t  atlas_region:\n\t\t  name: ' + reg_name + '\n')
-            fid.write('\t\t  subregions: [l1, l23, l4, l5, l6a, l6b]\n')
+            fid.write('\t\t  subregions: [l1, l2, l3, l4, l5, l6]\n')
             fid.write('\t  filters: []\n\n')
         fid.write('populations:\n')
         for i, nm in enumerate(self.mpr.region_names):

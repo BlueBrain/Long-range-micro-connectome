@@ -31,6 +31,7 @@ class LayerProfiles(object):
         self.shape = cfg["layer_profile_shape"]
         self.kwargs = cfg["layer_profile_cbar_kwargs"]
         self.kwargs["filename"] = cfg["layer_profile_cbar_filename"]
+        self.pattern_layers = cfg["layer_profile_layers"]
         self.read()
 
     @staticmethod
