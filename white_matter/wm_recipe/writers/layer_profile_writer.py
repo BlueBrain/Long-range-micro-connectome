@@ -7,7 +7,7 @@ class LayerProfileWriter(object):
         fid.write('layer_profiles:\n')
         prof_name_pat = 'profile_%d'
         prof_k = sorted(l_profiles.patterns.keys())
-        prof_layers = [['l1'], ['l23'], ['l4'], ['l5'], ['l6a', 'l6b']]
+        prof_layers = l_profiles.pattern_layers
         for k in prof_k:
             fid.write('\t- name: %s\n' % (prof_name_pat % k))
             fid.write('\t  relative_densities:\n')

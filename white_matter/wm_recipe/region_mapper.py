@@ -13,8 +13,8 @@ class RegionMapper(object):
         self.source_names = ['23', '4', '5it', '5pt', '6']
         self.module_idx = {'prefrontal': [0, 9], 'anterolateral': [9, 14], 'somatomotor': [14, 23],
                            'visual': [23, 30], 'medial': [30, 36], 'temporal': [36, 43]}
-        self.source_layers = {'23': ['l23'], '4': ['l4'], '5it': ['l5'],
-                              '5pt': ['l5'], '6': ['l6a', 'l6b']}
+        self.source_layers = {'23': ['l2', 'l3'], '4': ['l4'], '5it': ['l5'],
+                              '5pt': ['l5'], '6': ['l6']}
         self.source_filters = {'23': {'synapse_type': 'EXC'}, '4': {'synapse_type': 'EXC'},
                                '5it': {'synapse_type': 'EXC', 'proj_type': 'intratelencephalic'},
                                '5pt': {'synapse_type': 'EXC', 'proj_type': 'pyramidal tract'},
