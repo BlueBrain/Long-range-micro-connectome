@@ -9,13 +9,13 @@ class PTypeWriter(object):
         #self.func = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0)
         self.thresh = interaction_thresh
 
-    def src_mat(self, src):
+    '''def src_mat(self, src):
         measurement = self.p_type_mdls.cfg["mat_predict_innervation"]
         predict_fun = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0) #TODO: read from config
         M = numpy.hstack([self.proj_str(src_type=src, hemi=hemi,
                                         measurement=measurement)
                           for hemi in ['ipsi', 'contra']])
-        return predict_fun(M)
+        return predict_fun(M)'''
 
     @staticmethod
     def _nums2str(v, prefix='\t\t'):
@@ -54,6 +54,9 @@ class PTypeWriter(object):
         fid.write("p-types:\n")
         for source_name in self.mpr.source_names:
             p_type_mdl = self.p_type_mdls[source_name]
+            src_valid = numpy.hstack([self.proj_str(src_type=source_name, hemi=hemi,
+                                                    measurement='connection density') > 0
+                                      for hemi in ['ipsi', 'contra']])
             src_mat = p_type_mdl.first_order_mat()
             for reg_from in self.mpr.region_names:
                 print "Getting interactions for %s" % reg_from
@@ -63,7 +66,7 @@ class PTypeWriter(object):
                 proj_list = [self.namer.projection(reg_from, source_name, _x[0], hemi=_x[1])
                              for _x in p_type_mdl.region_hemi_names()]
                 proj_fracs = src_mat[self.mpr.region2idx(reg_from)]
-                valid1 = proj_fracs > 0
+                valid1 = (proj_fracs > 0) & src_valid[self.mpr.region2idx(reg_from)]
                 if not numpy.any(valid1):
                     print "Nothing for %s, %s" % (reg_from, source_name)
                     continue

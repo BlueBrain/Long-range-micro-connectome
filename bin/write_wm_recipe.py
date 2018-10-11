@@ -41,7 +41,7 @@ if __name__ == "__main__":
         rid = tab_replacer(fid)
         PopulationWriter(mpr, namer)(rid)
         ProjectionWriter(mpr, namer, P, mixer, mapper, syn_types)(rid)
-        PTypeWriter(mpr, namer, p_type_mdl, P)(rid)
+        PTypeWriter(mpr, namer, p_type_mdl, P, interaction_thresh=2.0)(rid)
         LayerProfileWriter(l_prof)(rid)
         SynapseTypeWriter(syn_types)(rid)
         ConnectionMappingWriter()(rid)
