@@ -2,9 +2,10 @@
   "ProjectionMapping":
   {
     "class": "VoxelArrayBaryMapper",
-    "target_args": {"normalize": 1},
-    "pp_use": {"per_pixel": 0, "exponent": 2.1, "normalize": 1.25, "log": 0},
-    "pp_display": {"per_pixel": 0, "exponent": 2.1, "normalize": 1.25, "log": 0},
+    "target_args": {"normalize": 0},
+    "pp_use": {"exponent": 1.01, "relative_cutoff": [95, 0.25], "equalize": [0.175, 0.5]},
+    "pp_display": {"exponent": 1.01, "relative_cutoff": [95, 0.25], "equalize": [0.175, 0.5]},
+    "fit_args": {"offset": 0.1925, "mul": 25},
     "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
     "prepare_args": {},
     "plot_dir": "/home/reimann/Documents/plots/white_matter/voxel_mapping2",

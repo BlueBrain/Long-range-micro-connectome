@@ -1,5 +1,21 @@
-from projection_mapping import BarycentricCoordinates
 import numpy
+from barycentric import BarycentricCoordinates
+
+
+def contract_min(x, y, xy):
+    #mn = xy.mean(axis=0)
+    mn = numpy.array([x.mean(), y.mean()])
+    tmp = BarycentricCoordinates(x, y)
+    counter = 0
+    bary = tmp.cart2bary(xy[:, 0], xy[:, 1])
+    while counter < 75 and not numpy.any(numpy.any(bary > 1, axis=1)&
+                                         numpy.any(numpy.abs(bary) < 0.05, axis=1)):
+        for i in range(3):
+            _of_point(x, y, i, mn, 0.99)
+        tmp = BarycentricCoordinates(x, y)
+        bary = tmp.cart2bary(xy[:, 0], xy[:, 1])
+        counter += 1
+    return x, y
 
 
 def estimate_mapping_var(data, model):

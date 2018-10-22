@@ -2,98 +2,11 @@
 import numpy
 import logging
 from white_matter.wm_recipe.region_mapper import RegionMapper
+from white_matter.wm_recipe.projection_mapping.barycentric import BarycentricConstrainedColors, BarycentricColors
+from white_matter.wm_recipe.projection_mapping.contract import contract_min
 
 logging.basicConfig(level=1)
 info_log = logging.getLogger(__file__)
-
-
-class BarycentricCoordinates(object):
-
-    def __init__(self, x, y):
-        assert len(x) == 3 and len(y) == 3
-        self._x = x
-        self._y = y
-        self._S = numpy.matrix([x, y]).transpose()
-        self._T = numpy.matrix([[self._x[0] - self._x[2], self._x[1] - self._x[2]],
-                                [self._y[0] - self._y[2], self._y[1] - self._y[2]]])
-
-    def cart2bary(self, x, y):
-        lx = x - self._x[2]
-        ly = y - self._y[2]
-        res = numpy.linalg.solve(self._T, numpy.vstack([lx, ly]))
-        return numpy.vstack([res[0, :], res[1, :], 1.0 - res.sum(axis=0)]).transpose()
-
-    def bary2cart(self, a, b, c):
-        return numpy.array(numpy.vstack([a, b, c]).transpose() * self._S)
-
-    def area(self):
-        p1 = numpy.array([self._x[0] - self._x[2], self._y[0] - self._y[2]])
-        p2 = numpy.array([self._x[1] - self._x[2], self._y[1] - self._y[2]])
-        l1 = numpy.linalg.norm(p1)
-        l2 = numpy.linalg.norm(p2)
-        assert l1 > 0 and l2 > 0
-        return numpy.sin(numpy.arccos(numpy.sum(p1 * p2) / (l1 * l2))) * (l1 * l2) * 0.5
-
-
-class BarycentricColors(BarycentricCoordinates):
-
-    def __init__(self, x, y, red=[1, 0, 0], green=[0, 1, 0], blue=[0, 0, 1]):
-        super(BarycentricColors, self).__init__(x, y)
-        self._cols = numpy.matrix(numpy.vstack([red, green, blue]).transpose())
-
-    def col(self, x, y):
-        b = self.cart2bary(x, y)
-        b[b > 1.0] = 1.0
-        b[b < 0.0] = 0.0
-        return numpy.array((self._cols * b.transpose()).transpose())
-
-    def img(self, mask, convolve_var=None):
-        nz = numpy.nonzero(mask)
-        out_img = numpy.zeros(mask.shape + (3,))
-        out_img[nz[0], nz[1], :] = self.col(nz[1].astype(float), nz[0].astype(float))
-        if convolve_var is not None:
-            from scipy.stats import norm
-            from scipy.signal import convolve2d
-            sd = numpy.minimum(numpy.sqrt(convolve_var), 100)
-            if sd < numpy.sqrt(convolve_var):
-                info_log.info("\tExcessive mapping variance found! Reducing to 100!")
-            info_log.info("\t\tConvolving final mapping with: %f" % sd)
-            X, Y = numpy.meshgrid(numpy.arange(-2 * sd, 2 * sd), numpy.arange(-2 * sd, 2 * sd))
-            kernel = norm(0, sd).pdf(numpy.sqrt(X ** 2 + Y ** 2))
-            c_mask = convolve2d(mask, kernel, 'same')
-            for i in range(3):
-                out_img[:, :, i] = convolve2d(out_img[:, :, i], kernel, 'same')\
-                                   / c_mask
-            out_img[~mask, :] = 0
-        return out_img
-
-    def show_img(self, mask, zoom=True, sz_x=8, show_poles=True, convolve_var=None):
-        nz = numpy.nonzero(mask)
-        out_img = self.img(mask, convolve_var=convolve_var)
-        if zoom:
-            y1, y2 = nz[0].min(), nz[0].max() + 1
-            x1, x2 = nz[1].min(), nz[1].max() + 1
-            out_img = out_img[y1:y2, x1:x2, :]
-        from matplotlib import pyplot as plt
-        sz_y = sz_x * (y2 - y1) / (x2 - x1)
-        fig = plt.figure(figsize=(sz_x, sz_y))
-        ax = fig.add_axes([0, 0, 1, 1])
-        plt.axis('off')
-        ax.imshow(out_img, extent=(x1-0.5, x2-0.5, y2-0.5, y1-0.5))
-        if show_poles:
-            for i in range(3):
-                ax.plot(self._x[i], self._y[i], 'v',
-                        color=[1.0, 1.0, 1.0], markersize=15)
-                ax.plot(self._x[i], self._y[i], 'v',
-                        color=numpy.array(self._cols)[:, i],
-                        markersize=10)
-        if convolve_var is not None:
-            cx = numpy.mean(ax.get_xlim())
-            cy = numpy.mean(ax.get_ylim())
-            xx = cx + numpy.sqrt(convolve_var) * numpy.cos(numpy.linspace(0, 2 * numpy.pi, 100))
-            yy = cy + numpy.sqrt(convolve_var) * numpy.sin(numpy.linspace(0, 2 * numpy.pi, 100))
-            ax.plot(xx, yy, color='grey', ls='--')
-        return ax
 
 
 class BarycentricMaskMapper(BarycentricColors):
@@ -234,15 +147,31 @@ class GeneralProjectionMapper(object):
                 A[:, (A.shape[1] / 2):] = mask_val
 
     @staticmethod
-    def post_processing(IMG, log=False, exponent=2.0, normalize=1.25, per_pixel=True):
+    def post_processing(IMG, log=False, exponent=None, normalize=None, per_pixel=True,
+                        relative_cutoff=None, equalize=(0.1, 0.5)):
         if log:
             IMG = numpy.log10(IMG)
             extrema = (numpy.nanmin(IMG[~numpy.isinf(IMG)]),
                        numpy.nanmax(IMG[~numpy.isinf(IMG)]))
             IMG = (IMG - extrema[0]) / (extrema[1] - extrema[0])
             IMG[numpy.isinf(IMG)] = 0
-        if exponent != 1.0:
+        if exponent is not None:
             IMG = IMG ** exponent
+        if equalize is not None:
+            channels = IMG[IMG.sum(axis=2) > 0]
+            if numpy.min(channels.mean(axis=0) / channels.mean(axis=0).sum()) < equalize[0]:
+                print channels.mean(axis=0) / channels.mean(axis=0).sum()
+                tgt = channels.mean(axis=0) ** equalize[1]
+                facs = (tgt * channels.mean(axis=0).sum()) / (tgt.sum() * channels.mean(axis=0))
+                IMG = IMG * facs.reshape((1, 1, 3))
+        if relative_cutoff is not None:
+            IMGsum = numpy.sum(IMG, axis=2)
+            cutoff = numpy.percentile(IMGsum[~numpy.isnan(IMGsum) & (IMGsum > 0)],
+                                      relative_cutoff[0]) * relative_cutoff[1]
+            print cutoff
+            IMG = IMG / cutoff
+            over = numpy.nonzero(IMG.sum(axis=2) > 1.0)
+            IMG[over] = IMG[over] / IMG[over].sum(axis=1).reshape((len(over[0]), 1))
         if normalize is not None:
             img_sum = numpy.nansum(IMG, axis=2)
             if per_pixel:
@@ -311,13 +240,35 @@ class GeneralProjectionMapper(object):
             return ax, IMG
         return ax
 
-    def _fit_func(self, abc, xy):
+    @staticmethod
+    def _fit_func(abc, xy, offset=0.1925, mul=10.0):
+        def _max_angle(pt):
+            from scipy.stats import norm
+            A = numpy.vstack([pt[:3], pt[3:]]).transpose()
+            normalize = lambda _x: _x / numpy.sqrt((_x ** 2).sum())
+            cos_ang = [normalize(A[1] - A[0]).dot(normalize(A[2] - A[0])),
+                       normalize(A[0] - A[1]).dot(normalize(A[2] - A[1])),
+                       normalize(A[0] - A[2]).dot(normalize(A[1] - A[2]))]
+            #return numpy.arccos(cos_ang).max()
+            return mul * (norm(2.95, 0.218).cdf(numpy.arccos(cos_ang).max())\
+                   + 1 - norm(0.174, 0.2).cdf(numpy.arccos(cos_ang).min())) + 1
+
+        def _overlap(cols):
+            diff = numpy.max(cols, axis=0) - numpy.min(cols, axis=0)
+            coverage = numpy.prod(diff)
+            return offset + 1.0 - coverage
+
         from scipy import optimize
-        initial_solution = numpy.linalg.lstsq(abc, xy, rcond=-1)[0]
+        v = abc.sum(axis=1) > 0.9
+        initial_solution = numpy.linalg.lstsq(abc[v], xy[v], rcond=-1)[0]
+        MN = xy[v].mean(axis=0).reshape((1, 2))
+        DN = numpy.sqrt(((initial_solution - MN) ** 2).sum(axis=1)).reshape((3, 1))
+        #initial_solution = MN + 25 * (initial_solution - MN) / DN
 
         def evaluate_error(pt):
-            res = BarycentricCoordinates(pt[:3], pt[3:])
-            return (res.cart2bary(xy[:, 0], xy[:, 1]) - abc).flatten()
+            res = BarycentricConstrainedColors(pt[:3], pt[3:])
+            cols = res.col(xy[:, 0], xy[:, 1])
+            return (numpy.abs(cols - abc)).flatten() * _overlap(cols) * _max_angle(pt)
 
         info_log.info("\tMean initial error is %f" %
                       numpy.abs(evaluate_error(initial_solution.transpose().flatten())).mean())
@@ -325,25 +276,24 @@ class GeneralProjectionMapper(object):
                                full_output=True)
         final_error = numpy.abs(sol[2]['fvec']).mean()
         info_log.info("\tMean final error is %f" % final_error)
-        from white_matter.wm_recipe.projection_mapping.contract import contract, estimate_mapping_var
-        x_out, y_out, map_var = contract(sol[0][:3], sol[0][3:], xy, #numpy.sqrt(1/numpy.mean(abc, axis=0)),
-                                         info_log)
-        col_sys = BarycentricColors(x_out, y_out)
+        from white_matter.wm_recipe.projection_mapping.contract import estimate_mapping_var
+        #x_out, y_out, map_var = contract(sol[0][:3], sol[0][3:], xy, #numpy.sqrt(1/numpy.mean(abc, axis=0)),
+        #                                info_log)
+        x_out, y_out = contract_min(sol[0][:3], sol[0][3:], xy)
+        col_sys = BarycentricConstrainedColors(x_out, y_out)
         map_var = estimate_mapping_var(abc, col_sys.col(xy[:, 0], xy[:, 1]))
         #x_out, y_out, map_var = self._contract(sol[0][:3], sol[0][3:], xy)
         return col_sys, numpy.maximum(map_var, 0.25), final_error
 
-    def fit_target_coordinates(self, IMG):
-        self.mask_hemisphere(IMG, mask_val=numpy.NaN)
+    def fit_target_coordinates(self, IMG, **kwargs):
         valid = numpy.all(~numpy.isnan(IMG), axis=2) & (numpy.nansum(IMG, axis=2) > 0)
         nz = numpy.nonzero(valid)
         abc = IMG[nz[0], nz[1], :]
-        abc = abc / abc.sum(axis=1).reshape((abc.shape[0], 1))
         xy = numpy.vstack([nz[1], nz[0]]).transpose()
-        return self._fit_func(abc, xy)
+        return self._fit_func(abc, xy, **kwargs)
 
     def make_target_region_coordinate_system(self, tgt, target_args={}, pp_use={},
-                                             pp_display={},
+                                             pp_display={}, fit_args={},
                                              src_args={}, draw=True):
         if draw:
             ax, IMG = self.draw_projection(tgt, target_args=target_args,
@@ -351,9 +301,10 @@ class GeneralProjectionMapper(object):
                                            draw_source=True,
                                            return_img=True)
         IMG = self.for_target(tgt, **target_args)
+        self.mask_hemisphere(IMG, mask_val=numpy.NaN)
         IMG = self.post_processing(IMG, **pp_use)
         info_log.info("Fitting for target %s" % tgt)
-        res_coords, map_var, final_error = self.fit_target_coordinates(IMG)
+        res_coords, map_var, final_error = self.fit_target_coordinates(IMG, **fit_args)
         if numpy.isnan(map_var): map_var = 0.25
         info_log.info("Mapping variance is: %f" % map_var)
         if draw:
@@ -568,6 +519,7 @@ def main(cfg, obj, src):
     pp_use = cfg["pp_use"]
     pp_display = cfg["pp_display"]
     prepare_args = cfg["prepare_args"]
+    fit_args = cfg["fit_args"]
     if "cre" in prepare_args and prepare_args["cre"] == "None":
         print "Using both cre positive and negative experiments"
         prepare_args["cre"] = None
@@ -609,7 +561,7 @@ def main(cfg, obj, src):
                 continue
             res, map_var, error, ax1, ax2 = obj.make_target_region_coordinate_system(tgt,
                                     target_args=target_args, pp_use=pp_use,
-                                    pp_display=pp_display, draw=True)
+                                    pp_display=pp_display, fit_args=fit_args, draw=True)
             ax1.figure.savefig(os.path.join(tgt_plots, ('%s_data' % str(tgt)) + cfg["plot_extension"]))
             ax2.figure.savefig(os.path.join(tgt_plots, ('%s_model' % str(tgt)) + cfg["plot_extension"]))
             plt.close('all')
