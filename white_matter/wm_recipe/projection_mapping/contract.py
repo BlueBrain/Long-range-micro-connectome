@@ -2,18 +2,23 @@ import numpy
 from barycentric import BarycentricCoordinates
 
 
-def contract_min(x, y, xy):
-    #mn = xy.mean(axis=0)
-    mn = numpy.array([x.mean(), y.mean()])
-    tmp = BarycentricCoordinates(x, y)
+def contract_min(x, y, xy, target_d=0.075):
+    from scipy.spatial import distance_matrix
+    mn = xy.mean(axis=0)
+    #mn = numpy.array([x.mean(), y.mean()])
     counter = 0
-    bary = tmp.cart2bary(xy[:, 0], xy[:, 1])
-    while counter < 75 and not numpy.any(numpy.any(bary > 1, axis=1)&
-                                         numpy.any(numpy.abs(bary) < 0.05, axis=1)):
+    bary = BarycentricCoordinates(x, y).cart2bary(xy[:, 0], xy[:, 1])
+    tgts = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    oldD = numpy.NaN
+    D = distance_matrix(tgts, bary).min(axis=0)
+    while D.min() > target_d and not oldD < D.min() and counter < 50:
+        span = D.max() - D.min()
+        fac = span / D.max()
         for i in range(3):
-            _of_point(x, y, i, mn, 0.99)
-        tmp = BarycentricCoordinates(x, y)
-        bary = tmp.cart2bary(xy[:, 0], xy[:, 1])
+            _of_point(x, y, i, mn, fac)
+        bary = BarycentricCoordinates(x, y).cart2bary(xy[:, 0], xy[:, 1])
+        oldD = D.min()
+        D = distance_matrix(tgts, bary).min(axis=0)
         counter += 1
     return x, y
 
@@ -26,7 +31,6 @@ def estimate_mapping_var(data, model):
                              for _d in model])
     ratio_hue_sd = numpy.std(hsl_model[:, 0]) / numpy.std(hsl_data[:, 0])
     ratio_saturation = hsl_model[:, 0].mean() / hsl_data[:, 0].mean()
-    print ratio_hue_sd, ratio_saturation
     return 3 * numpy.sqrt(ratio_hue_sd ** 2 + ratio_saturation ** 2)
 
 

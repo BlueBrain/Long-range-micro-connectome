@@ -241,7 +241,20 @@ class GeneralProjectionMapper(object):
         return ax
 
     @staticmethod
-    def _fit_func(abc, xy, offset=0.1925, mul=10.0):
+    def _mapping_overlap(bary_src, coord_sys, xy, min_dist=3.0):
+        from scipy.spatial import distance_matrix
+        cart_src = coord_sys.bary2cart(bary_src[:, 0], bary_src[:, 1], bary_src[:, 2])
+        H = distance_matrix(xy, cart_src)
+        coverage_src = (H.min(axis=0) <= min_dist).mean()
+        coverage_tgt = (H.min(axis=1) <= min_dist).mean()
+        return coverage_src, coverage_tgt
+
+    def mapping_overlap(self, coord_sys, xy, min_dist=0.05):
+        src_y, src_x = numpy.nonzero(self._mask2d)
+        bary_src = self._bary.cart2bary(src_x, src_y)
+        return self._mapping_overlap(bary_src, coord_sys, xy, min_dist=min_dist)
+
+    def _fit_func(self, abc, xy, exponent=1.0, mul_angle=10.0, mul_overlap=10.0, opt_args={}):
         def _max_angle(pt):
             from scipy.stats import norm
             A = numpy.vstack([pt[:3], pt[3:]]).transpose()
@@ -249,31 +262,28 @@ class GeneralProjectionMapper(object):
             cos_ang = [normalize(A[1] - A[0]).dot(normalize(A[2] - A[0])),
                        normalize(A[0] - A[1]).dot(normalize(A[2] - A[1])),
                        normalize(A[0] - A[2]).dot(normalize(A[1] - A[2]))]
-            #return numpy.arccos(cos_ang).max()
-            return mul * (norm(2.95, 0.218).cdf(numpy.arccos(cos_ang).max())\
+            return mul_angle * (norm(2.95, 0.218).cdf(numpy.arccos(cos_ang).max())\
                    + 1 - norm(0.174, 0.2).cdf(numpy.arccos(cos_ang).min())) + 1
 
         def _overlap(cols):
             diff = numpy.max(cols, axis=0) - numpy.min(cols, axis=0)
             coverage = numpy.prod(diff)
-            return offset + 1.0 - coverage
+            return mul_overlap * (1 - coverage ** exponent) + 1
 
         from scipy import optimize
         v = abc.sum(axis=1) > 0.9
         initial_solution = numpy.linalg.lstsq(abc[v], xy[v], rcond=-1)[0]
-        MN = xy[v].mean(axis=0).reshape((1, 2))
-        DN = numpy.sqrt(((initial_solution - MN) ** 2).sum(axis=1)).reshape((3, 1))
-        #initial_solution = MN + 25 * (initial_solution - MN) / DN
 
         def evaluate_error(pt):
             res = BarycentricConstrainedColors(pt[:3], pt[3:])
             cols = res.col(xy[:, 0], xy[:, 1])
             return (numpy.abs(cols - abc)).flatten() * _overlap(cols) * _max_angle(pt)
 
+        info_log.info("\tInitial solution: %s" % str(initial_solution))
         info_log.info("\tMean initial error is %f" %
                       numpy.abs(evaluate_error(initial_solution.transpose().flatten())).mean())
         sol = optimize.leastsq(evaluate_error, initial_solution.transpose().flatten(),
-                               full_output=True)
+                               full_output=True, **opt_args)
         final_error = numpy.abs(sol[2]['fvec']).mean()
         info_log.info("\tMean final error is %f" % final_error)
         from white_matter.wm_recipe.projection_mapping.contract import estimate_mapping_var
@@ -282,8 +292,10 @@ class GeneralProjectionMapper(object):
         x_out, y_out = contract_min(sol[0][:3], sol[0][3:], xy)
         col_sys = BarycentricConstrainedColors(x_out, y_out)
         map_var = estimate_mapping_var(abc, col_sys.col(xy[:, 0], xy[:, 1]))
-        #x_out, y_out, map_var = self._contract(sol[0][:3], sol[0][3:], xy)
-        return col_sys, numpy.maximum(map_var, 0.25), final_error
+        map_var = numpy.maximum(map_var, 0.25)
+        overlaps = self.mapping_overlap(col_sys, xy, min_dist=map_var)
+
+        return col_sys, map_var, overlaps, final_error
 
     def fit_target_coordinates(self, IMG, **kwargs):
         valid = numpy.all(~numpy.isnan(IMG), axis=2) & (numpy.nansum(IMG, axis=2) > 0)
@@ -304,16 +316,17 @@ class GeneralProjectionMapper(object):
         self.mask_hemisphere(IMG, mask_val=numpy.NaN)
         IMG = self.post_processing(IMG, **pp_use)
         info_log.info("Fitting for target %s" % tgt)
-        res_coords, map_var, final_error = self.fit_target_coordinates(IMG, **fit_args)
+        res_coords, map_var, overlaps, final_error = self.fit_target_coordinates(IMG, **fit_args)
         if numpy.isnan(map_var): map_var = 0.25
         info_log.info("Mapping variance is: %f" % map_var)
+        info_log.info("Source and target region overlap: %s" % str(overlaps))
         if draw:
             info_log.info("Drawing results\n\n")
             tgt_mask = self._mapper.transform(self.make_volume_mask(tgt))
             self.mask_hemisphere(tgt_mask)
             ax2 = res_coords.show_img(tgt_mask, convolve_var=map_var)
-            return res_coords, map_var, final_error, ax, ax2
-        return res_coords, map_var, final_error
+            return res_coords, map_var, overlaps, final_error, ax, ax2
+        return res_coords, map_var, overlaps, final_error
 
 
 class VoxelArrayBaryMapper(GeneralProjectionMapper):
@@ -559,7 +572,7 @@ def main(cfg, obj, src):
                 info_log.info("%s/%s already present. Skipping..." %
                               (str(src), str(tgt)))
                 continue
-            res, map_var, error, ax1, ax2 = obj.make_target_region_coordinate_system(tgt,
+            res, map_var, overlaps, error, ax1, ax2 = obj.make_target_region_coordinate_system(tgt,
                                     target_args=target_args, pp_use=pp_use,
                                     pp_display=pp_display, fit_args=fit_args, draw=True)
             ax1.figure.savefig(os.path.join(tgt_plots, ('%s_data' % str(tgt)) + cfg["plot_extension"]))
@@ -570,6 +583,7 @@ def main(cfg, obj, src):
             tgt_grp.create_dataset('coordinates/y', data=res._y)
             tgt_grp.create_dataset('mapping_variance', data=[map_var])
             tgt_grp.create_dataset('error', data=[error])
+            tgt_grp.create_dataset('overlaps', data=overlaps)
             if isinstance(obj, VoxelNodeBaryMapper):
                 N = numpy.all(~numpy.isnan(obj._exp_cols), axis=1).sum()
                 tgt_grp.create_dataset('n_experiments', data=[N])

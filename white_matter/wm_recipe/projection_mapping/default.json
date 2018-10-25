@@ -5,12 +5,12 @@
     "target_args": {"normalize": 0},
     "pp_use": {"exponent": 1.01, "relative_cutoff": [95, 0.25], "equalize": [0.175, 0.5]},
     "pp_display": {"exponent": 1.01, "relative_cutoff": [95, 0.25], "equalize": [0.175, 0.5]},
-    "fit_args": {"offset": 0.1925, "mul": 25},
+    "fit_args": {"exponent": 1.0, "mul_overlap": 10.0, "mul_angle": 10.0},
     "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
     "prepare_args": {},
-    "plot_dir": "/home/reimann/Documents/plots/white_matter/voxel_mapping2",
+    "plot_dir": "/home/reimann/Documents/plots/white_matter/voxel_mapping4",
     "plot_extension": ".png",
-    "h5_fn": "voxel_mappings.h5",
+    "h5_fn": "voxel_mappings_weighted.h5",
     "hemi_mirror_at": 136
   }
 }
