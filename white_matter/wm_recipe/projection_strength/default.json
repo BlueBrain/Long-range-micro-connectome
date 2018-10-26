@@ -14,7 +14,7 @@
 
     "threshold_fraction": 0.05,
 
-    "scaling": {"region": "SSp-ll", "value": 0.079043},
+    "scaling": {"region": "SSp-ll", "value": 0.1},
 
     "h5_cache": "projection_matrices.h5"
   }
