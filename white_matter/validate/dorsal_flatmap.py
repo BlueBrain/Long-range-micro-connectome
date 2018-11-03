@@ -73,12 +73,15 @@ class DorsalFlatmap(object):
     def make_2d_mask(self, regions):
         return self._mapper.transform(self.make_3d_mask(regions))
 
-    def transform_points(self, x, y, z):
+    def transform_points(self, x, y, z, only_unique=True):
         xyz = self._coordinates2voxel(numpy.vstack([x, y, z]).transpose())
         flt = self._three_d2flat_idx(xyz)
-        flt2idx = {}
-        for i, v in enumerate(flt):
-            flt2idx.setdefault(v, []).append(i)
+        if only_unique:
+            flt2idx = dict([(v, i) for i, v in enumerate(flt)])
+        else:
+            flt2idx = {}
+            for i, v in enumerate(flt):
+                flt2idx.setdefault(v, []).append(i)
         hits = numpy.in1d(self._mapper.paths.flat, flt).reshape(self._mapper.paths.shape)
         idxx = numpy.nonzero(hits.sum(axis=1))[0]
         out_coords = numpy.NaN * numpy.ones((xyz.shape[0], 2))
