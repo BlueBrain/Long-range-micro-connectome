@@ -4,6 +4,16 @@ from matplotlib import pyplot as plt
 import numpy
 
 
+def conditional_conversion(lst):
+    out = []
+    for s in lst:
+        if numpy.all([_x.isdigit() for _x in s]):
+            out.append(int(s))
+        else:
+            out.append(s)
+    return out
+
+
 def main(fn_feather, fn_circ, n_smpl, **kwargs):
     D = validate.DorsalFlatmap()
     A = validate.ProjectionizerResult(fn_feather, fn_circ)
@@ -47,5 +57,5 @@ if __name__ == "__main__":
             n_smpl = int(arg[7:])
         else:
             splt_arg = arg.split('=')
-            fltr_args[splt_arg[0]] = splt_arg[1].split(',')
+            fltr_args[splt_arg[0]] = conditional_conversion(splt_arg[1].split(','))
     main(sys.argv[1], sys.argv[2], n_smpl, **fltr_args)
