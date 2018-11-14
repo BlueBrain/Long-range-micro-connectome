@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from white_matter import validate
 from matplotlib import pyplot as plt
 import numpy
