@@ -1,6 +1,7 @@
 import pandas
 import numpy
 import bluepy
+from white_matter.wm_recipe import region_mapper
 
 
 class ProjectionizerResult(object):
@@ -8,6 +9,7 @@ class ProjectionizerResult(object):
     def __init__(self, path_feather, path_circ):
         self._data = pandas.read_feather(path_feather)
         self._circ = bluepy.Circuit(path_circ)
+        self._mpr = region_mapper.RegionMapper()
         self._post_gids = self._data['tgid'].unique()
         self._pre_gids = self._data['sgid'].unique()
 
@@ -19,6 +21,14 @@ class ProjectionizerResult(object):
             for k in _d.keys():
                 lst_dicts[0].setdefault(k, []).extend(_d.pop(k))
         return lst_dicts[0]
+
+    def _truncate_layer(self, lst_region_names):
+        def _sngl(s):
+            contained = [_x in s for _x in self._mpr.region_names]
+            if numpy.any(contained):
+                return self._mpr.region_names[numpy.nonzero(contained)[0][0]]
+            return s
+        return numpy.array(map(_sngl, lst_region_names))
 
     def _presynaptic_property(self, post_gid, property_str, unique=False):
         if hasattr(post_gid, '__iter__'):
@@ -74,9 +84,13 @@ class ProjectionizerResult(object):
                    * (props['sgid'].max() + 1)
         else:
             idxx = self.presynaptic_gids(post_gids, unique=False)
-        splt = self._presynaptic_circ_property(post_gids, lookup_by, unique_neurons=False)
-        u_splt = splt.unique()
-        return dict([(_reg, idxx[(splt == _reg).values].value_counts().values)
+        if lookup_by == 'brain region':
+            splt = self._presynaptic_circ_property(post_gids, 'region', unique_neurons=False)
+            splt = self._truncate_layer(splt)
+        else:
+            splt = self._presynaptic_circ_property(post_gids, lookup_by, unique_neurons=False).values
+        u_splt = numpy.unique(splt)
+        return dict([(_reg, idxx[splt == _reg].value_counts().values)
                      for _reg in u_splt])
 
     def postsynaptic_gids(self, pre_gids, split=True, **kwargs):
@@ -95,9 +109,13 @@ class ProjectionizerResult(object):
                    * (props['sgid'].max() + 1)
         else:
             idxx = self.postsynaptic_gids(pre_gids, unique=False)
-        splt = self._postsynaptic_circ_property(pre_gids, lookup_by, unique_neurons=False)
-        u_splt = splt.unique()
-        return dict([(_reg, idxx[(splt == _reg).values].value_counts().values)
+        if lookup_by == 'brain region':
+            splt = self._postsynaptic_circ_property(pre_gids, 'region', unique_neurons=False)
+            splt = self._truncate_layer(splt)
+        else:
+            splt = self._postsynaptic_circ_property(pre_gids, lookup_by, unique_neurons=False).values
+        u_splt = numpy.unique(splt)
+        return dict([(_reg, idxx[splt == _reg].value_counts().values)
                      for _reg in u_splt])
 
     def presynaptic_locations(self, post_gids, split=True, **kwargs):
