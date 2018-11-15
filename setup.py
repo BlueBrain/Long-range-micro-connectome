@@ -6,13 +6,14 @@ def find_scripts():
                'bin/write_projection_mapping_cache.py',
                'bin/write_ptype_tree_model_cache.py',
                'bin/validation/presynaptic_neuron_locations.py',
-               'bin/validation/presynaptic_synapses_per_connection.py']
+               'bin/validation/presynaptic_synapses_per_connection.py',
+               'bin/validation/layer_profile.py']
     return scripts
 
 
 setup(
     name='white_matter',
-    version='1.03',
+    version='1.04',
     install_requires=['h5py', 'allensdk==0.14.5', 'simplejson', 'mouse-connectivity-models==0.0.1',
                       'numpy', 'progressbar', 'PyYAML', 'scipy==1.0.0', ],
     packages=find_packages(),

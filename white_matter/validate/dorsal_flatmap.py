@@ -24,6 +24,16 @@ class DorsalFlatmap(object):
         return idx[:, 0] * numpy.prod(self._mapper.REFERENCE_SHAPE[1:]) + \
                idx[:, 1] * self._mapper.REFERENCE_SHAPE[-1] + idx[:, 2] + 1
 
+    def _flat_idx2three_d(self, idx):
+        idx = idx.astype(int) - 1
+        valid = idx >= 0
+        ret = numpy.NaN * numpy.ones((len(idx), 3))
+        ret[valid, 0] = idx[valid] / numpy.prod(self._mapper.REFERENCE_SHAPE[1:])
+        idx = numpy.mod(idx, numpy.prod(self._mapper.REFERENCE_SHAPE[1:]))
+        ret[valid, 1] = idx[valid] / self._mapper.REFERENCE_SHAPE[-1]
+        ret[valid, 2] = numpy.mod(idx[valid], self._mapper.REFERENCE_SHAPE[-1])
+        return ret
+
     def _coordinates2voxel(self, xyz, cutoff=4):
         xyz = (xyz / 100).astype(int)
         res = []
@@ -90,6 +100,23 @@ class DorsalFlatmap(object):
             src_flts = numpy.intersect1d(self._mapper.paths[idx], flt)
             for _flt in src_flts:
                 out_coords[flt2idx[_flt], :] = [nz[0].mean(), nz[1].mean()]
+        return out_coords
+
+    def transform_points_vertical(self, x, y, z, only_unique=False):
+        xyz = (numpy.vstack([x, y, z]).transpose() / 100).astype(int)
+        flt = self._three_d2flat_idx(xyz)
+        if only_unique:
+            flt2idx = dict([(v, i) for i, v in enumerate(flt)])
+        else:
+            flt2idx = {}
+            for i, v in enumerate(flt):
+                flt2idx.setdefault(v, []).append(i)
+        hits = numpy.in1d(self._mapper.paths.flat, numpy.unique(flt)).reshape(self._mapper.paths.shape)
+        idxx = numpy.nonzero(hits)
+        out_coords = numpy.NaN * numpy.ones(xyz.shape[0])
+        for i, y in zip(*idxx):
+            _flt = self._mapper.paths[i, y]
+            out_coords[flt2idx[_flt]] = y
         return out_coords
 
     def draw_modules(self, ax, color='black'):

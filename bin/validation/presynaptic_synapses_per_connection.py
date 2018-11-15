@@ -46,10 +46,11 @@ def main(fn_feather, fn_circ, n_smpl, **kwargs):
 
 
 if __name__ == "__main__":
-    import sys
+    import sys, os
     if len(sys.argv) < 3:
         print """Usage: %s feather_file CircuitConfig fltr_type1=fltr_value1 fltr_type2=fltr_value2, ...
-        Filters are neuron property filters (e.g. region=VISp4) that are applied to POSTsynaptic neurons""" % __file__
+        Filters are neuron property filters (e.g. region=VISp4) that are applied to POSTsynaptic neurons""" % \
+              os.path.split(__file__)[1]
         sys.exit(2)
     n_smpl = 25
     fltr_args = {}
