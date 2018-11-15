@@ -7,7 +7,7 @@ def find_scripts():
                'bin/write_ptype_tree_model_cache.py',
                'bin/validation/presynaptic_neuron_locations.py',
                'bin/validation/presynaptic_synapses_per_connection.py',
-               'bin/validation/layer_profile.py']
+               'bin/validation/vertical_profile.py']
     return scripts
 
 

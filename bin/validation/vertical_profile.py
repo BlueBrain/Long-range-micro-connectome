@@ -33,17 +33,16 @@ def main(fn_feather, fn_circ, n_smpl, **kwargs):
                                        replace=False)
 
     syn_loc = A.postsynaptic_locations(gid_pre, split=False, unique=False)
-    Y = D.transform_points_vertical(syn_loc['x'].values, syn_loc['y'].values,
+    Y = D.transform_points_to_depth(syn_loc['x'].values, syn_loc['y'].values,
                                     syn_loc['z'].values, only_unique=False)
-    bins = numpy.arange(D._mapper.paths.shape[1] + 1)
-    yvals = 100.0 * numpy.arange(D._mapper.paths.shape[1])
-    H = numpy.histogram(Y[~numpy.isnan(Y)], bins=bins)[0]
+    bins = numpy.linspace(0, 2500, 26)
+    H = numpy.histogram(100 * Y[~numpy.isnan(Y)], bins=bins)[0]
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-    ax.plot(H, yvals)
+    ax.plot(H, bins[:-1])
     ax.set_ylabel('Depth (um)')
     ax.set_xlabel('Synapses')
-    ax.set_ylim(yvals[[-1, 0]])
+    ax.set_ylim(bins[[-2, 0]])
     plt.show()
 
 

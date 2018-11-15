@@ -19,6 +19,7 @@ class DorsalFlatmap(object):
         self._mpr = region_mapper.RegionMapper()
         self._make_reverse_lookup()
         self._make_mapped_idx()
+        self._make_path_depths()
 
     def _three_d2flat_idx(self, idx):
         return idx[:, 0] * numpy.prod(self._mapper.REFERENCE_SHAPE[1:]) + \
@@ -57,6 +58,14 @@ class DorsalFlatmap(object):
         is_mapped = numpy.zeros(self._mapper.REFERENCE_SHAPE, dtype=bool)
         is_mapped.flat[self._mapper.paths[self._mapper.paths > 0] - 1] = True
         self._mapped_idx = numpy.vstack(numpy.nonzero(is_mapped)).transpose()
+
+    def _make_path_depths(self):
+        self._depth = numpy.zeros(self._mapper.paths.shape)
+        for i, p in enumerate(self._mapper.paths):
+            p_xyz = self._flat_idx2three_d(p)
+            main_ax = numpy.nanmean(numpy.diff(p_xyz, axis=0), axis=0)
+            main_ax /= numpy.sqrt(numpy.sum(main_ax ** 2))
+            self._depth[i] = [numpy.sum(main_ax * _x) for _x in p_xyz - p_xyz[0]]
 
     def _region_ids(self, regions, resolve_to_leaf=False):
         if not isinstance(regions, list) or isinstance(regions, numpy.ndarray):
@@ -102,7 +111,7 @@ class DorsalFlatmap(object):
                 out_coords[flt2idx[_flt], :] = [nz[0].mean(), nz[1].mean()]
         return out_coords
 
-    def transform_points_vertical(self, x, y, z, only_unique=False):
+    def transform_points_to_depth(self, x, y, z, only_unique=False):
         xyz = (numpy.vstack([x, y, z]).transpose() / 100).astype(int)
         flt = self._three_d2flat_idx(xyz)
         if only_unique:
@@ -114,9 +123,9 @@ class DorsalFlatmap(object):
         hits = numpy.in1d(self._mapper.paths.flat, numpy.unique(flt)).reshape(self._mapper.paths.shape)
         idxx = numpy.nonzero(hits)
         out_coords = numpy.NaN * numpy.ones(xyz.shape[0])
-        for i, y in zip(*idxx):
-            _flt = self._mapper.paths[i, y]
-            out_coords[flt2idx[_flt]] = y
+        for i, j in zip(*idxx):
+            _flt = self._mapper.paths[i, j]
+            out_coords[flt2idx[_flt]] = self._depth[i, j]
         return out_coords
 
     def draw_modules(self, ax, color='black'):
