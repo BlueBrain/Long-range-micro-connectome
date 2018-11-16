@@ -14,7 +14,10 @@
 
     "threshold_fraction": 0.05,
 
-    "scaling": {"region": "SSp-ll", "value": 0.057868211},
+    "scaling": {"region": "SSp-ll", "value": 0.057868211,
+      "measurement": "connection density"},
+
+    "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
 
     "h5_cache": "projection_matrices.h5"
   }

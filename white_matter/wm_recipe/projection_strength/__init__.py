@@ -11,6 +11,7 @@ class ProjectionStrength(object):
         if cfg_file is None:
             import os
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
+        self.cfg_file = cfg_file
         self.cfg = read_config(cfg_file)
         self._DSET_SHAPE = (43, 43)
         self.treat_config()
