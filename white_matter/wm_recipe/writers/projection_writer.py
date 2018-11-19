@@ -69,11 +69,22 @@ class ProjectionWriter(object):
             fid.write(str_s_type % str(syn_type))
             fid.write('\n')
 
+        def reverse_transformation(pts):
+            '''This transformation, applied to both source and target coordinate systems
+            does not change the actual mapping at all, as it expands both triangles around
+            their respective centers equally. The purpose is simply to ensure that the triangles
+            more fully cover their respective brain regions. This way, we know that locations
+            outside the triangle in the target region are not covered by the mapping and no
+            synapses should be placed there.'''
+            mn_p = numpy.mean(pts)
+            return tuple([mn_p + (4.0 / 3.0) * (_p - mn_p)
+                          for _p in pts])
+
         def coordinate_system(coord_sys_data, pat, prefix):
             x, y, base_sys = coord_sys_data
             fid.write(prefix + 'mapping_coordinate_system:\n')
-            str_x = '[%5.3f, %5.3f, %5.3f]' % tuple(x)
-            str_y = '[%5.3f, %5.3f, %5.3f]' % tuple(y)
+            str_x = '[%5.3f, %5.3f, %5.3f]' % reverse_transformation(x)
+            str_y = '[%5.3f, %5.3f, %5.3f]' % reverse_transformation(y)
             fid.write(pat % (base_sys, str_x, str_y))
 
         func = self.iterate_per_region

@@ -10,7 +10,7 @@
     "prepare_args": {},
     "plot_dir": "/home/reimann/Documents/plots/white_matter/voxel_mapping4",
     "plot_extension": ".png",
-    "h5_fn": "voxel_mappings_weighted.h5",
+    "h5_fn": "voxel_mappings.h5",
     "hemi_mirror_at": 136
   }
 }
