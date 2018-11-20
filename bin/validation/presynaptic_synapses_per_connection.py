@@ -37,7 +37,8 @@ def main(fn_feather, fn_circ, n_smpl, **kwargs):
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
     for k, v in syns_con.items():
-        ax.plot(range(1, len(v) + 1), v, label=k)
+        H = numpy.histogram(v, bins=numpy.arange(1, 51))
+        ax.plot(H[1][:-1], H[0], label=k)
     ax.legend()
     ax.set_yscale('log')
     ax.set_xlabel('Synapses per connection')
