@@ -5,6 +5,7 @@ def find_scripts():
     scripts = ['bin/write_wm_recipe.py',
                'bin/write_projection_mapping_cache.py',
                'bin/write_ptype_tree_model_cache.py',
+               'bin/write_projection_strength_cache.py',
                'bin/validation/presynaptic_neuron_locations.py',
                'bin/validation/presynaptic_synapses_per_connection.py',
                'bin/validation/pre_post_mapping.py',
@@ -14,7 +15,7 @@ def find_scripts():
 
 setup(
     name='white_matter',
-    version='1.06',
+    version='1.07',
     install_requires=['h5py', 'allensdk==0.14.5', 'simplejson', 'mouse-connectivity-models==0.0.1',
                       'numpy', 'progressbar', 'PyYAML', 'scipy==1.0.0', ],
     packages=find_packages(),

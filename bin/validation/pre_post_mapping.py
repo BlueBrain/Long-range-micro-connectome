@@ -14,7 +14,7 @@ def conditional_conversion(lst):
 
 
 def main(fn_feather, fn_circ, show_x='x', show_y='y', show_region='source',
-         **kwargs):
+         out_dir=None, **kwargs):
     if isinstance(show_x, list):
         show_x = show_x[0]
     if isinstance(show_y, list):
@@ -65,7 +65,12 @@ def main(fn_feather, fn_circ, show_x='x', show_y='y', show_region='source',
         ax.plot([bx[0], bx[0]], [by[0], by[0] + 100], color='black', lw=5)
         ax.text(bx[0]-10, by[0] +50, show_y, color='black', horizontalalignment='right')
         ax.set_title("%s region" % show_region)
-    plt.show()
+        if out_dir is not None:
+            str_fltrs = ','.join(['%s=%s' % (k, str(v)) for k, v in kwargs.items()])
+            fig.savefig(os.path.join(out_dir, 'mapping_%s--%s_%s_%s.pdf' %
+                                     (str_fltrs, show_x, show_y, show_region)))
+    if out_dir is None:
+        plt.show()
 
 if __name__ == "__main__":
     import sys, os
@@ -77,9 +82,13 @@ if __name__ == "__main__":
               os.path.split(__file__)[1]
         sys.exit(2)
     fltr_args = {}
+    out_dir = None
     for arg in sys.argv[3:]:
-        splt_arg = arg.split('=')
-        fltr_args[splt_arg[0]] = conditional_conversion(splt_arg[1].split(','))
+        if '=' in arg:
+            splt_arg = arg.split('=')
+            fltr_args[splt_arg[0]] = conditional_conversion(splt_arg[1].split(','))
+        else:
+            out_dir = arg
     show_x = fltr_args.pop('show_x', 'x')
     show_y = fltr_args.pop('show_y', 'y')
     show_region = fltr_args.pop('show_region', 'source')
