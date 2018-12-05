@@ -9,13 +9,14 @@ def find_scripts():
                'bin/validation/presynaptic_neuron_locations.py',
                'bin/validation/presynaptic_synapses_per_connection.py',
                'bin/validation/pre_post_mapping.py',
-               'bin/validation/vertical_profile.py']
+               'bin/validation/vertical_profile.py',
+               'bin/validation/pre_post_mapping_cols.py']
     return scripts
 
 
 setup(
     name='white_matter',
-    version='1.07',
+    version='1.08',
     install_requires=['h5py', 'allensdk==0.14.5', 'simplejson', 'mouse-connectivity-models==0.0.1',
                       'numpy', 'progressbar', 'PyYAML', 'scipy==1.0.0', ],
     packages=find_packages(),
