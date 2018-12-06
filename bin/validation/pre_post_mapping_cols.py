@@ -5,14 +5,11 @@ from mcmodels.core import VoxelModelCache
 from matplotlib import pyplot as plt
 
 
-def conditional_conversion(lst):
-    out = []
-    for s in lst:
-        if numpy.all([_x.isdigit() for _x in s]):
-            out.append(int(s))
-        else:
-            out.append(s)
-    return out
+def conditional_conversion(arg):
+    if numpy.all([_x.isdigit() for _x in arg]):
+        return int(arg)
+    else:
+        return arg
 
 
 def main(fn_feather, fn_circ, region_source, region_target, manifest_file=None,
@@ -22,7 +19,7 @@ def main(fn_feather, fn_circ, region_source, region_target, manifest_file=None,
     cache = VoxelModelCache(manifest_file=manifest_file)
     P = validate.ProjectionizerResult(fn_feather, fn_circ)
 
-    proj = validate.ProjectionResultBaryMapper
+    proj = validate.ProjectionResultBaryMapper.from_cache(cache, P)
 
     proj.prepare_for_source(region_source, interactive=False)
     fig_src = plt.gcf()
@@ -49,7 +46,7 @@ if __name__ == "__main__":
     for arg in sys.argv[3:]:
         if '=' in arg:
             splt_arg = arg.split('=')
-            fltr_args[splt_arg[0]] = conditional_conversion(splt_arg[1].split(','))
+            fltr_args[splt_arg[0]] = conditional_conversion(splt_arg[1])
         else:
             raise Exception("Unsupported argument: %s" % arg)
     region_source = fltr_args.pop('region_source', None)
