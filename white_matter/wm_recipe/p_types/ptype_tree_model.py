@@ -148,7 +148,7 @@ def make_bidirectional(T):
 
 def con_mat2cluster_tree(M, radial=True):
     import community
-    gamma = numpy.linspace(0, 12.75, 1001)
+    gamma = numpy.linspace(0, 12.75, 2001)
     rr = 1.0 / gamma[1:-1]
     G = nx.from_numpy_array(M + M.transpose(), create_using=nx.Graph())
     partitions = [community.best_partition(G, resolution=_r) for _r in rr]
@@ -261,11 +261,16 @@ class TreeInnervationModel(object):
             self._val_mask = val_mask
 
 
-    def grow_from(self, idx, coming_from=[]):
+    def grow_from(self, idx, coming_from=[], valids=None):
         if isinstance(idx, str) or isinstance(idx, unicode):
             idx = self.mpr.region2idx(idx)
-        if len(coming_from) > 0 and idx in self.leaves:
-            return [idx]
+        if valids is None:
+            valids = numpy.nonzero(self._val_mask[idx])[0]
+        elif idx in self.leaves:
+            if idx in valids:
+                return [idx]
+            else:
+                return []
         edges = [e for e in self.T.out_edges(idx)
                  if (e[1], e[0]) not in coming_from]
         #print coming_from, edges
@@ -273,7 +278,7 @@ class TreeInnervationModel(object):
         for e in edges:
             p = self.p_func(self.T.edges[e]['log_p'])
             if numpy.random.rand() < p:
-                ret.extend(self.grow_from(e[1], coming_from=[e]))
+                ret.extend(self.grow_from(e[1], coming_from=[e], valids=valids))
         return ret
 
     def get_interaction_strength(self, axon_from, r1, r2, weight='log_p'):
@@ -345,23 +350,24 @@ class TreeInnervationModel(object):
         plt.axis('off')
 
     @classmethod
-    def from_con_mats(cls, mat_topology, mat_weights, **kwargs):
+    def from_con_mats(cls, mat_topology, mat_weights, optimize=False, **kwargs):
         mat_topology[numpy.isnan(mat_topology)] = 0.0 #TODO: Instead mask out
         mat_weights[numpy.isnan(mat_weights)] = 0.0
         T, pos_dict = con_mat2cluster_tree(mat_topology, radial=True)
         epsilon = mat_weights[mat_weights > 0].min()
         W, ND = fit_tree_to_mat(T, mat_weights + epsilon)
-        for n in get_leaves(T):
-            for e in T.out_edges(n):
-                T.edges[e]['log_p'] = 0.0
-        mdl_tmp = cls(T)
-        M1 = mdl_tmp.first_order_mat()
-        M1[mat_weights == 0] = 0.0
-        sbtrct = numpy.log10(numpy.polyfit(M1[~numpy.isnan(M1)],
-                                           mat_weights[~numpy.isnan(M1)], 1)[0])
-        for e in T.edges:
-            if T.edges[e]['log_p'] > sbtrct and T.edges[e]['log_p'] > 0.0:
-                T.edges[e]['log_p'] = T.edges[e]['log_p'] - sbtrct
+        if optimize:
+            for n in get_leaves(T):
+                for e in T.out_edges(n):
+                    T.edges[e]['log_p'] = 0.0
+            mdl_tmp = cls(T)
+            M1 = mdl_tmp.first_order_mat()
+            M1[mat_weights == 0] = 0.0
+            sbtrct = numpy.log10(numpy.polyfit(M1[~numpy.isnan(M1)],
+                                               mat_weights[~numpy.isnan(M1)], 1)[0])
+            for e in T.edges:
+                if T.edges[e]['log_p'] > sbtrct and T.edges[e]['log_p'] > 0.0:
+                    T.edges[e]['log_p'] = T.edges[e]['log_p'] - sbtrct
         return cls(T, val_mask=(mat_weights > 0), **kwargs)
 
     @classmethod

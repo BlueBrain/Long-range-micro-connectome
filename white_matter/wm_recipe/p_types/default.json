@@ -5,7 +5,7 @@
     {
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
-      "func_predict_innervation": "(x ** 0.5) / 4",
+      "func_predict_innervation": "x",
       "json_cache": "tree_model_final_23.json",
       "h5_cache": "tree_model_final.h5",
       "h5_dset": "23",
@@ -15,7 +15,7 @@
     {
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
-      "func_predict_innervation": "(x ** 0.5) / 4",
+      "func_predict_innervation": "(x ** 0.5) / 3",
       "json_cache": "tree_model_final_4.json",
       "h5_cache": "tree_model_final.h5",
       "h5_dset": "4",
@@ -25,7 +25,7 @@
     {
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
-      "func_predict_innervation": "(x ** 0.5) / 4",
+      "func_predict_innervation": "(x ** 0.5) / 4.5",
       "json_cache": "tree_model_final_5it.json",
       "h5_cache": "tree_model_final.h5",
       "h5_dset": "5it",
@@ -35,7 +35,7 @@
     {
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
-      "func_predict_innervation": "(x ** 0.5) / 4",
+      "func_predict_innervation": "(x ** 0.5) / 3",
       "json_cache": "tree_model_final_5pt.json",
       "h5_cache": "tree_model_final.h5",
       "h5_dset": "5pt",
@@ -45,7 +45,7 @@
     {
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
-      "func_predict_innervation": "(x ** 0.5) / 4",
+      "func_predict_innervation": "x",
       "json_cache": "tree_model_final_6.json",
       "h5_cache": "tree_model_final.h5",
       "h5_dset": "6",
