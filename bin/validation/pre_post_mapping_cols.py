@@ -5,6 +5,9 @@ from mcmodels.core import VoxelModelCache
 from matplotlib import pyplot as plt
 
 
+projection_root = '/gpfs/bbp.cscs.ch/project/proj68/usr/reimann'
+
+
 def conditional_conversion(arg):
     if numpy.all([_x.isdigit() for _x in arg]):
         return int(arg)
@@ -19,7 +22,7 @@ def main(fn_feather, fn_circ, region_source, region_target, manifest_file=None,
     cache = VoxelModelCache(manifest_file=manifest_file)
     P = validate.ProjectionizerResult(fn_feather, fn_circ)
 
-    proj = validate.ProjectionResultBaryMapper.from_cache(cache, P)
+    proj = validate.ProjectionResultBaryMapper.from_cache(cache, P, projection_root=projection_root)
 
     proj.prepare_for_source(region_source, interactive=False)
     fig_src = plt.gcf()
