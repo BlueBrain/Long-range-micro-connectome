@@ -2,7 +2,7 @@ import os
 import mcmodels
 import numpy
 
-q_str = "http://connectivity.brain-map.org/projection/csv?criteria=service::mouse_connectivity_target_spatial[injection_structures$eq%d][seed_point$eq%d,%d,%d][primary_structure_only$eq%s][transgenic_lines$eq0]"
+q_str = "http://connectivity.brain-map.org/projection/csv?criteria=service::mouse_connectivity_target_spatial[injection_structures$eq%d][seed_point$eq%d,%d,%d][primary_structure_only$eq%s]"#[transgenic_lines$eq0]"
 
 
 class StreamlineDownloader(object):
@@ -37,14 +37,19 @@ class StreamlineDownloader(object):
             mask[:, :, self._lr_cutoff:] = False
         else:
             raise ReferenceError("Unknown hemisphere: %s" % hemisphere)
-        center = numpy.vstack(numpy.nonzero(mask)).mean(axis=1)
+        return numpy.vstack(numpy.nonzero(mask)).mean(axis=1)
+
+    def __region2center_coord__(self, region_acronym, hemisphere='right'):
+        center = self.__region2center__(region_acronym, hemisphere=hemisphere)
         ret = center * numpy.matrix(self._vol_spec['space directions']).astype(float)
         return numpy.array(ret)[0]
 
     def __execute_query__(self, q):
-        import subprocess
-        fn = "tmp_sl_" + str(numpy.random.randint(1E9)) + ".csv"
+        import subprocess, hashlib
+        fn = "tmp_sl_" + hashlib.md5(q).hexdigest() + ".csv"
         fn = os.path.join(self._sl_cache, fn)
+        if os.path.isfile(fn):
+            return fn
         command = ["wget", "-O", fn, q]
         print command
         proc = subprocess.Popen(command, stdout=subprocess.PIPE,
@@ -86,7 +91,7 @@ class StreamlineDownloader(object):
         if isinstance(source_spec, str):
             source_spec = self._tree.get_structures_by_acronym([source_spec])[0]['id']
         if isinstance(target_spec, str):
-            target_spec = self.__region2center__(target_spec, hemisphere=target_hemisphere).astype(int)
+            target_spec = self.__region2center_coord__(target_spec, hemisphere=target_hemisphere).astype(int)
         return q_str % ((source_spec, ) + tuple(target_spec) + (str(primary_only).lower(), ))
 
     def query(self, target_spec, target_hemisphere='right', source_spec='grey',
