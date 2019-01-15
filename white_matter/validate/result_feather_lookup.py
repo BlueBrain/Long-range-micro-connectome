@@ -142,5 +142,18 @@ class ProjectionizerResult(object):
                     for _g in pre_gids]
         return self._postsynaptic_circ_property(pre_gids, ['x', 'y', 'z'], **kwargs)
 
-
+    def to_csc_matrix(self, return_col_indices=True):
+        from scipy import sparse
+        assert self._data['tgid'].is_monotonic_increasing
+        idxx = numpy.hstack([0,
+                             numpy.nonzero(numpy.diff(self._data['tgid']) > 0)[0] + 1,
+                             len(self._data)])
+        shape = (self._circ.v2.cells.count(), len(idxx) - 1)
+        M = sparse.csc_matrix((numpy.ones(len(self._data), dtype=bool),
+                               self._data['sgid'],
+                               idxx), shape)
+        if return_col_indices:
+            u_tgid = self._data['tgid'].loc[idxx[:-1]].values
+            return M, u_tgid
+        return M
 

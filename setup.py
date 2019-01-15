@@ -6,6 +6,7 @@ def find_scripts():
                'bin/write_projection_mapping_cache.py',
                'bin/write_ptype_tree_model_cache.py',
                'bin/write_projection_strength_cache.py',
+               'bin/proj2csc.py',
                'bin/validation/presynaptic_neuron_locations.py',
                'bin/validation/presynaptic_synapses_per_connection.py',
                'bin/validation/pre_post_mapping.py',
