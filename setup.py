@@ -25,7 +25,7 @@ setup(
     scripts=find_scripts(),
     author='Michael Reimann',
     author_email='michael.reimann@epfl.ch',
-    description='Analyze white matter connectivity in the mouse brain and write a generative recipe',
+    description='Analyze white matter connectivity in the mouse brain and write a generative recipe and validate the results',
     license='Restricted',
     keywords=('neuroscience',
               'brain',
