@@ -41,14 +41,10 @@ def main(cfg, obj, src):
         prepare_args["cre"] = None
 
     out_plots = cfg["plot_dir"]
-    if not os.path.isabs(out_plots):
-        out_plots = os.path.join(cfg_root, out_plots)
     if not os.path.exists(out_plots):
         os.makedirs(out_plots)
 
     out_h5_fn = cfg["h5_fn"]
-    if not os.path.isabs(out_h5_fn):
-        out_h5_fn = os.path.join(cfg_root, out_h5_fn)
     if not os.path.exists(os.path.split(out_h5_fn)[0]):
         os.makedirs(os.path.split(out_h5_fn)[0])
     if os.path.exists(out_h5_fn):
@@ -101,10 +97,12 @@ if __name__ == "__main__":
     import sys
     import json
     import os
+    from white_matter.utils.paths_in_config import path_local_to_cfg_root
     cfg_file = sys.argv[1]
     with open(cfg_file, 'r') as fid:
         cfg = json.load(fid)["ProjectionMapping"]
     cfg["cfg_root"] = os.path.split(cfg_file)[0]
+    path_local_to_cfg_root(cfg, ["cache_manifest", "h5_fn"])
     obj = make_mapper(cfg)
     if len(sys.argv) > 2:
         main(cfg, obj, sys.argv[2])

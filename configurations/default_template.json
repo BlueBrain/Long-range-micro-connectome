@@ -1,0 +1,133 @@
+{
+  "LayerProfiles":
+  {
+    "layer_profile_filename": "../img/layer_profile%d.png",
+    "layer_profile_cbar_filename": "../img/relative_density_cbar.png",
+    "layer_profile_shape": [1, 5],
+    "layer_profile_cbar_width": [0, 1635],
+    "layer_profile_cbar_height": 30,
+    "layer_profile_cbar_values": [0, 3],
+    "layer_profile_cbar_kwargs": {},
+    "layer_profile_number": 6,
+    "layer_profile_layers": [["l1"], ["l2", "l3"], ["l4"], ["l5"], ["l6"]],
+    "layer_profile_split_23": 1,
+
+    "rel_frequency_filename": "../img/relative_frequency_%s.png",
+    "rel_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
+    "rel_frequency_cbar_width": [15, 1160],
+    "rel_frequency_cbar_height": 15,
+    "rel_frequency_cbar_values": {"0.0": 0.0, "0.5": 1.0, "1.0": 3.0},
+    "rel_frequency_shape": [6, 1],
+    "rel_frequency_cbar_kwargs": {},
+
+    "module_frequency_filename": "../img/module_rel_frequency_%s.png",
+    "module_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
+    "module_frequency_cbar_width": [15, 1160],
+    "module_frequency_cbar_height": 15,
+    "module_frequency_cbar_values": {"0.0": 0.0, "0.5": 1.0, "1.0": 3.0},
+    "module_frequency_shape": [6, 1],
+    "module_frequency_cbar_kwargs": {}
+
+
+  },
+  "PTypes":
+  {
+    "23":
+    {
+      "mat_tree_topology": "normalized connection density",
+      "mat_predict_innervation": "normalized connection strength",
+      "func_predict_innervation": "(x ** 0.5) / 2",
+      "json_cache": "tree_model_final_23.json",
+      "h5_cache": "tree_model_final.h5",
+      "h5_dset": "23",
+      "p_func": "10 ** -x"
+    },
+    "4":
+    {
+      "mat_tree_topology": "normalized connection density",
+      "mat_predict_innervation": "normalized connection strength",
+      "func_predict_innervation": "(x ** 0.5) / 3",
+      "json_cache": "tree_model_final_4.json",
+      "h5_cache": "tree_model_final.h5",
+      "h5_dset": "4",
+      "p_func": "10 ** -x"
+    },
+    "5it":
+    {
+      "mat_tree_topology": "normalized connection density",
+      "mat_predict_innervation": "normalized connection strength",
+      "func_predict_innervation": "(x ** 0.5) / 4.5",
+      "json_cache": "tree_model_final_5it.json",
+      "h5_cache": "tree_model_final.h5",
+      "h5_dset": "5it",
+      "p_func": "10 ** -x"
+    },
+    "5pt":
+    {
+      "mat_tree_topology": "normalized connection density",
+      "mat_predict_innervation": "normalized connection strength",
+      "func_predict_innervation": "(x ** 0.5) / 3",
+      "json_cache": "tree_model_final_5pt.json",
+      "h5_cache": "tree_model_final.h5",
+      "h5_dset": "5pt",
+      "p_func": "10 ** -x"
+    },
+    "6":
+    {
+      "mat_tree_topology": "normalized connection density",
+      "mat_predict_innervation": "normalized connection strength",
+      "func_predict_innervation": "(x ** 0.5) / 2",
+      "json_cache": "tree_model_final_6.json",
+      "h5_cache": "tree_model_final.h5",
+      "h5_dset": "6",
+      "p_func": "10 ** -x"
+    }
+  },
+  "ProjectionMapping":
+  {
+    "class": "VoxelArrayBaryMapper",
+    "target_args": {"normalize": 0},
+    "pp_use": {"exponent": 1.01, "relative_cutoff": [95, 0.25], "equalize": [0.175, 0.5]},
+    "pp_display": {"exponent": 1.01, "relative_cutoff": [95, 0.25], "equalize": [0.175, 0.5]},
+    "fit_args": {"exponent": 1.0, "mul_overlap": 10.0, "mul_angle": 10.0},
+    "cache_manifest": "data/connectivity/voxel_model_manifest.json",
+    "prepare_args": {},
+    "plot_dir": "plots/white_matter/mapping",
+    "plot_extension": ".png",
+    "h5_fn": "voxel_mappings.h5",
+    "hemi_mirror_at": 136
+  },
+  "ProjectionStrength":
+  {
+    "cbar_width": [0, 3041],
+    "cbar_height": 12,
+    "cbar_values": [-3.5, 0.5],
+    "cbar_filename": "../img/per_layer_cbar.PNG",
+    "cbar_kwargs": {"vals_nan": [[57, 56, 56], [166,166,166]]},
+
+    "per_layer_module_separators": [0, 8, 9, 17, 22, 26, 27],
+    "per_layer_mat_height": 27,
+    "per_layer_filename_ipsi": "../img/per_layer_%s_ipsi.png",
+    "per_layer_filename_contra": "../img/per_layer_%s_contra.png",
+
+    "threshold_fraction": 0.05,
+
+    "scaling": {"region": "SSp-ll", "value": 0.057868211,
+      "measurement": "connection density"},
+
+    "cache_manifest": "data/connectivity/voxel_model_manifest.json",
+
+    "h5_cache": "projection_matrices.h5"
+  },
+  "SynapseTypes":
+  {
+    "synapse_type_yaml": "../yaml/synapse_type.yaml",
+    "synapse_type_mapping":{
+      "23": "type_1",
+      "4": "type_2",
+      "5pt": "type_3",
+      "5it": "type_4",
+      "6": "type_5"
+    }
+  }
+}

@@ -401,20 +401,17 @@ class TreeInnervationModelCollection(object):
     @classmethod
     def from_config_file(cls, cfg_file=None):
         import json, os
+        from white_matter.utils.paths_in_config import path_local_to_path
 
         if cfg_file is None:
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
 
-        def __treat_path(fn):
-            if not os.path.isabs(fn):
-                fn = os.path.join(os.path.split(cfg_file)[0], fn)
-            return fn
         with open(cfg_file, 'r') as fid:
             cfg = json.load(fid)["PTypes"]
         mdl_dict = {}
+        local_path = os.path.split(cfg_file)[0]
         for k in cfg.keys():
-            cfg[k]["json_cache"] = __treat_path(cfg[k]["json_cache"])
-            cfg[k]["h5_cache"] = __treat_path(cfg[k]["h5_cache"])
+            path_local_to_path(cfg[k], local_path, ["json_cache", "h5_cache"])
             mdl_dict[k] = TreeInnervationModel.from_config(cfg[k])
         return cls(mdl_dict)
 

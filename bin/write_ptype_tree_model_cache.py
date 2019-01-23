@@ -7,17 +7,13 @@ mpr = region_mapper.RegionMapper()
 
 def load_cfg(cfg_file):
     import json, os
-
-    def __treat_path(fn):
-        if not os.path.isabs(fn):
-            fn = os.path.join(os.path.split(cfg_file)[0], fn)
-        return fn
+    from white_matter.utils.paths_in_config import path_local_to_path
 
     with open(cfg_file, 'r') as fid:
         cfg = json.load(fid)["PTypes"]
+    local_path = os.path.split(cfg_file)[0]
     for k in cfg.keys():
-        cfg[k]["json_cache"] = __treat_path(cfg[k]["json_cache"])
-        cfg[k]["h5_cache"] = __treat_path(cfg[k]["h5_cache"])
+        path_local_to_path(cfg[k], local_path, ["json_cache", "h5_cache"])
     return cfg
 
 

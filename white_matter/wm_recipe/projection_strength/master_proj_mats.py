@@ -34,7 +34,8 @@ def make_regionalized_model(voxel_array, source_mask, target_mask, tree, vol, he
 
 
 def layer_specific_matrix(mdl, tree, connection_type, layers):
-    '''We ended up not using this. Still, this is how it would have been done'''
+    '''We ended up not using this. Injections are too course-grained to yield usable results.
+    Still, this is how it would have been done'''
     A = mdl.__getattribute__(connection_type)
     sources = tree.get_structures_by_id(mdl.source_regions)
     source_names = [_s['acronym'] for _s in sources]

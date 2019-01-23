@@ -1,8 +1,14 @@
 def read_config(fn):
-    import json
+    import json, os
+    from white_matter.utils.paths_in_config import path_local_to_cfg_root, path_local_to_path
     with open(fn, 'r') as fid:
-        ret = json.load(fid)
-    return ret["ProjectionStrength"]
+        ret = json.load(fid)["ProjectionStrength"]
+    ret["cfg_root"] = os.path.split(fn)[0]
+    path_local_to_cfg_root(ret, ["cache_manifest", "h5_cache"])
+    path_local_to_path(ret, os.path.split(__file__)[0],
+                       ["cbar_filename", "per_layer_filename_ipsi",
+                        "per_layer_filename_contra"])
+    return ret
 
 
 class ProjectionStrength(object):
@@ -14,19 +20,11 @@ class ProjectionStrength(object):
         self.cfg_file = cfg_file
         self.cfg = read_config(cfg_file)
         self._DSET_SHAPE = (43, 43)
-        self.treat_config()
 
     @staticmethod
     def _dict_to_path(D):
         return D.get("src_type", "wild_type") + '/' + D.get("hemi", "ipsi") + '/'\
                + D.get("measurement", "connection density")
-
-    @staticmethod
-    def _treat_path(fn):
-        import os
-        if not os.path.isabs(fn):
-            fn = os.path.join(os.path.split(__file__)[0], fn)
-        return fn
 
     @staticmethod
     def layer_volume_fractions():
@@ -35,12 +33,6 @@ class ProjectionStrength(object):
         with open(fn, 'r') as fid:
             ret = json.load(fid)
         return ret
-
-    def treat_config(self):
-        entries = ["cbar_filename", "per_layer_filename_ipsi",
-                   "per_layer_filename_contra", "h5_cache"]
-        for k in entries:
-            self.cfg[k] = self._treat_path(self.cfg[k])
 
     def _call_master(self):
         import h5py, os

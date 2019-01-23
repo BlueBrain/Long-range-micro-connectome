@@ -7,18 +7,13 @@ def read_config(fn):
 
 class SynapseTypes(object):
     def __init__(self, cfg_file=None):
+        import os
+        from white_matter.utils.paths_in_config import path_local_to_path
         if cfg_file is None:
-            import os
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
         self.cfg = read_config(cfg_file)
-        self.cfg["synapse_type_yaml"] = self._treat_path(self.cfg["synapse_type_yaml"])
-
-    @staticmethod
-    def _treat_path(fn):
-        import os
-        if not os.path.isabs(fn):
-            fn = os.path.join(os.path.split(__file__)[0], fn)
-        return fn
+        local_path = os.path.split(__file__)[0]
+        path_local_to_path(self.cfg, local_path, ["synapse_type_yaml"])
 
     def __getitem__(self, item):
         return self.cfg["synapse_type_mapping"][item]

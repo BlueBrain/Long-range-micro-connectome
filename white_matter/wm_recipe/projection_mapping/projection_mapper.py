@@ -3,9 +3,12 @@ import h5py, numpy
 
 
 def read_config(fn):
+    from white_matter.utils.paths_in_config import path_local_to_cfg_root
     with open(fn, 'r') as fid:
-        ret = json.load(fid)
-    return ret["ProjectionMapping"]
+        ret = json.load(fid)["ProjectionMapping"]
+    ret["cfg_root"] = os.path.split(fn)[0]
+    path_local_to_cfg_root(ret, ["cache_manifest", "h5_fn"])
+    return ret
 
 
 class ProjectionMapper(object):
@@ -14,8 +17,6 @@ class ProjectionMapper(object):
         if cfg_file is None:
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
         self.cfg = read_config(cfg_file)
-        if not os.path.isabs(self.cfg["h5_fn"]):
-            self.cfg["h5_fn"] = os.path.join(os.path.split(__file__)[0], self.cfg["h5_fn"])
         if not os.path.exists(self.cfg["h5_fn"]):
             import subprocess, logging
             logging.getLogger(__file__).warning("Mapping cache does not exist at %s! Creating it now..." % self.cfg["h5_fn"])

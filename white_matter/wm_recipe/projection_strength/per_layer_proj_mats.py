@@ -3,13 +3,6 @@ from white_matter.wm_recipe.region_mapper import RegionMapper
 from white_matter.wm_recipe.sample_from_image import ImgSampler
 
 
-def treat_path(fn):
-    import os
-    if not os.path.isabs(fn):
-        fn = os.path.join(os.path.split(__file__)[0], fn)
-    return fn
-
-
 def deactivate_where_volume_is_zero(mats, vol_dict, mpr):
     for k, mat in mats.items():
         d = dict(k)
@@ -43,7 +36,7 @@ def per_layer_proj_mats(cfg, M_i, M_c, scale=True, vol_dict=None):
     h5 = h5py.File(os.path.join(os.path.split(__file__)[0], 'digested/connection_matrices.h5'), 'r')
     M_i = numpy.array(h5['wild_type/ipsi/connection density'])
     M_c = numpy.array(h5['wild_type/contra/connection density'])'''
-    '''SCALE THE MATRIX SUCH THAT THE VALUE FOR SSp-ll to SSp-ll MATCHES THE BBP MICROCIRCUIT'''
+    '''SCALE THE MATRIX SUCH THAT THE VALUE FOR SSp-ll to SSp-ll MATCHES THE SPECIFIED VALUE'''
     if scale:
         scalar = cfg["scaling"]["value"] / M_i[mpr.region2idx(str(cfg["scaling"]["region"])),
                                                mpr.region2idx(str(cfg["scaling"]["region"]))]

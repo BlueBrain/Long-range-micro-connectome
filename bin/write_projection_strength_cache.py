@@ -27,8 +27,10 @@ if __name__ == "__main__":
     import sys
     import json
     import os
+    from white_matter.utils.paths_in_config import path_local_to_cfg_root
     cfg_file = sys.argv[1]
     with open(cfg_file, 'r') as fid:
         cfg = json.load(fid)["ProjectionStrength"]
     cfg["cfg_root"] = os.path.split(cfg_file)[0]
+    path_local_to_cfg_root(cfg, ["cache_manifest", "h5_cache"])
     main(cfg)
