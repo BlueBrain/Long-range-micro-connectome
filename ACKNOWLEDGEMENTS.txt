@@ -1,0 +1,1 @@
+We thank Joseph Knox for assistance with the projection from the Allen common coordinate framework into a 2d plane.

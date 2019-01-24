@@ -114,18 +114,13 @@ class ProfileMixer(object):
         self.m_idx2hierarchy = [self._m_hierarchy.index(_x)
                                 for _x in mpr.module_names]
 
-    @staticmethod
-    def _treat_path(fn):
-        import os
-        if not os.path.isabs(fn):
-            fn = os.path.join(os.path.split(__file__)[0], fn)
-        return fn
-
     def treat_config(self):
+        import os
+        from white_matter.utils.paths_in_config import path_local_to_path
         suffix = "_filename"
-        for k, v in self.cfg.items():
-            if str(k).endswith(suffix):
-                self.cfg[k] = self._treat_path(v)
+        local_path = os.path.split(__file__)[0]
+        lst_args = [str(k) for k in self.cfg.keys() if str(k).endswith(suffix)]
+        path_local_to_path(self.cfg, local_path, lst_args)
 
     def predict_mix_from_sources(self, mod_fr, mod_to):
         kk = mpr.source_names
