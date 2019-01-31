@@ -158,7 +158,6 @@ class GeneralProjectionMapper(object):
         if equalize is not None:
             channels = IMG[IMG.sum(axis=2) > 0]
             if numpy.min(channels.mean(axis=0) / channels.mean(axis=0).sum()) < equalize[0]:
-                print channels.mean(axis=0) / channels.mean(axis=0).sum()
                 tgt = channels.mean(axis=0) ** equalize[1]
                 facs = (tgt * channels.mean(axis=0).sum()) / (tgt.sum() * channels.mean(axis=0))
                 IMG = IMG * facs.reshape((1, 1, 3))

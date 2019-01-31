@@ -33,7 +33,7 @@ setup(
               'yaml',
               'modelling'),
     url='http://bluebrain.epfl.ch',
-    classifiers=['Development Status :: 3 - Alpha',
+    classifiers=['Development Status :: 4 - Beta',
                  'Environment :: Console',
                  'License :: Proprietary',
                  'Operating System :: POSIX',

@@ -10,7 +10,6 @@
     "layer_profile_cbar_kwargs": {},
     "layer_profile_number": 6,
     "layer_profile_layers": [["l1"], ["l2", "l3"], ["l4"], ["l5"], ["l6"]],
-    "layer_profile_split_23": 1,
 
     "rel_frequency_filename": "../img/relative_frequency_%s.png",
     "rel_frequency_cbar_filename": "../img/relative_frequency_cbar.png",
@@ -112,7 +111,7 @@
 
     "threshold_fraction": 0.05,
 
-    "scaling": {"region": "SSp-ll", "value": 0.057868211,
+    "scaling": {"region": "SSp-ll", "value": 0.05534342,
       "measurement": "connection density"},
 
     "cache_manifest": "data/connectivity/voxel_model_manifest.json",
