@@ -1,6 +1,12 @@
 import numpy
 from white_matter.wm_recipe.region_mapper import RegionMapper
-from white_matter.wm_recipe.sample_from_image import ImgSampler
+from white_matter.utils.sample_from_image import ImgSampler
+from white_matter.utils.data_from_config import ConfiguredDataSource
+'''The strategy to combine a wild type connection matrix with digitized 
+data for projection-class-specific projection strength to derive dense
+projection-class-specific matrices'''
+
+mpr = RegionMapper()
 
 
 def deactivate_where_volume_is_zero(mats, vol_dict, mpr):
@@ -14,52 +20,52 @@ def deactivate_where_volume_is_zero(mats, vol_dict, mpr):
                 mat[i, :] = 0.0
 
 
+class ProjectionClassSpecificMat(ConfiguredDataSource):
+    relevant_chapter = "ProjectionStrength"
+    relevant_section = "per_projection_class_ipsi"
 
-def per_layer_proj_mats(cfg, M_i, M_c, scale=True, vol_dict=None):
-    mpr = RegionMapper()
-    per_layer_cbar = (tuple(cfg["cbar_width"]), cfg["cbar_height"], tuple(cfg["cbar_values"]))
-    per_layer_cbar_kwargs = cfg["cbar_kwargs"]
-    per_layer_cbar_kwargs["filename"] = cfg["cbar_filename"]
+    def __init__(self, cfg_file=None):
+        self.source_names = mpr.source_names
+        if cfg_file is None:
+            import os
+            cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
+        super(ProjectionClassSpecificMat, self).__init__(cfg_file)
+        self.parameterize(self.cfg)
+        self.patterns = dict([(k, 10 ** v) for k, v in self.patterns.items()])
+
+    def __pattern_to_filenames__(self, pat):
+        ret = dict([(k, pat % k) for k in self.source_names])
+        ret['master'] = pat % 'ALL'
+        return ret
+
+
+class ProjectionClassSpecificMatC(ProjectionClassSpecificMat):
+    relevant_section = 'per_projection_class_contra'
+
+
+def per_layer_proj_mats(cfg, cfg_file, M_i, M_c, scale=True, vol_dict=None):
     per_layer_mdl_idx_fr = cfg["per_layer_module_separators"]
-    per_layer_N = cfg["per_layer_mat_height"]
     per_layer_mdl_idx_to = numpy.unique(mpr.module_idx.values())
-    N = mpr.n_regions()
     frac_lost_in_thresh = cfg["threshold_fraction"]
-    fn_pat_ipsi = str(cfg["per_layer_filename_ipsi"])
-    fn_pat_contra = str(cfg["per_layer_filename_contra"])
 
     def dictmap(d, func):
         return dict([(k, func(v)) for k, v in d.items()])
 
-    '''READ THE MAIN CONNECTION MATRIX'''
-    '''import h5py, os
-    h5 = h5py.File(os.path.join(os.path.split(__file__)[0], 'digested/connection_matrices.h5'), 'r')
-    M_i = numpy.array(h5['wild_type/ipsi/connection density'])
-    M_c = numpy.array(h5['wild_type/contra/connection density'])'''
-    '''SCALE THE MATRIX SUCH THAT THE VALUE FOR SSp-ll to SSp-ll MATCHES THE SPECIFIED VALUE'''
+    '''SCALE THE MATRIX SUCH THAT THE VALUE FOR THE SPECIFIED REGION MATCHES THE SPECIFIED VALUE'''
     if scale:
         scalar = cfg["scaling"]["value"] / M_i[mpr.region2idx(str(cfg["scaling"]["region"])),
                                                mpr.region2idx(str(cfg["scaling"]["region"]))]
         M_i = scalar * M_i
         M_c = scalar * M_c
 
-    '''READ THE LAYER-SPECIFIC MATRICES'''
-    fn_ipsi = dict([(k, fn_pat_ipsi % k) for k in mpr.source_names])
-    fn_ipsi['master'] = fn_pat_ipsi % 'ALL'
-    fn_contra = dict([(k, fn_pat_contra % k) for k in mpr.source_names])
-    fn_contra['master'] = fn_pat_contra % 'ALL'
-    m_ipsi = dictmap(fn_ipsi, lambda fn: ImgSampler(fn, cbar=per_layer_cbar, cbar_kwargs=per_layer_cbar_kwargs))
-    m_contra = dictmap(fn_contra, lambda fn: ImgSampler(fn, cbar=per_layer_cbar, cbar_kwargs=per_layer_cbar_kwargs))
-    '''LAYER SPECIFIC MATRICES ARE ONLY SAMPLED AT 43 BY 27'''
-    [_x.sample(N, per_layer_N) for _x in m_ipsi.values()]
-    [_x.sample(N, per_layer_N) for _x in m_contra.values()]
-    '''LAYER SPECIFIC MATRICES LACK THE PLUS 1 IN THE LOG TRANSFORM, INSTEAD HAVE ZEROS MASKED OUT'''
-    [_x.map(lambda x: 10**x) for _x in m_ipsi.values()]
-    [_x.map(lambda x: 10**x) for _x in m_contra.values()]
+    '''GENERATE LAYER-SPECIFIC MATRICES'''
+    m_ipsi = ProjectionClassSpecificMat(cfg_file)
+    m_contra = ProjectionClassSpecificMatC(cfg_file)
     '''CONDENSE LAYER SPECIFIC MATRICES TO MODULE PATHWAYS (6 BY 6)'''
-    ss_ipsi = dictmap(m_ipsi, lambda x: x.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum))
-    ss_contra = dictmap(m_contra, lambda x: x.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum))
-
+    m_ipsi.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum)
+    m_contra.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum)
+    ss_ipsi = m_ipsi.patterns
+    ss_contra = m_contra.patterns
     '''NORMALIZE BY THE SUM OF ALL LAYER SPECIFIC MATRICES. ASSUMPTION: TOTAL STRENGTH IS SUM OF PATHWAYS FROM INDIVIDUAL LAYERS'''
     nrmlz_ipsi = numpy.dstack([ss_ipsi[k] for k in mpr.source_names]).sum(axis=2)
     nrmlz_contra = numpy.dstack([ss_contra[k] for k in mpr.source_names]).sum(axis=2)

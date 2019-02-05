@@ -7,7 +7,7 @@ from white_matter.wm_recipe import region_mapper
 class ProjectionizerResult(object):
 
     def __init__(self, path_feather, path_circ):
-        self._data = pandas.read_feather(path_feather)
+        self._data = pandas.read_feather(path_feather, columns=['sgid', 'tgid', 'x', 'y', 'z'])
         self._circ = bluepy.Circuit(path_circ)
         self._mpr = region_mapper.RegionMapper()
         self._post_gids = self._data['tgid'].unique()

@@ -5,7 +5,7 @@ from white_matter.wm_recipe.projection_mapping import ProjectionMapper
 from white_matter.wm_recipe.projection_strength import ProjectionStrength
 from white_matter.wm_recipe.synapse_types import SynapseTypes
 from white_matter.wm_recipe.writers import *
-from white_matter.wm_recipe.projection_namer import ProjectionNamer
+from white_matter.utils.projection_namer import ProjectionNamer
 from white_matter.wm_recipe.region_mapper import RegionMapper
 from white_matter import __version__
 

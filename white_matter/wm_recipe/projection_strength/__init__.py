@@ -1,14 +1,13 @@
+from white_matter.utils.data_from_config import read_config as read_config_default
+
+
 def read_config(fn):
-    import json, os
     from white_matter.utils.paths_in_config import path_local_to_cfg_root, path_local_to_path
-    with open(fn, 'r') as fid:
-        ret = json.load(fid)["ProjectionStrength"]
-    ret["cfg_root"] = os.path.split(fn)[0]
-    path_local_to_cfg_root(ret, ["cache_manifest", "h5_cache"])
-    path_local_to_path(ret, os.path.split(__file__)[0],
-                       ["cbar_filename", "per_layer_filename_ipsi",
-                        "per_layer_filename_contra"])
-    return ret
+    ret = read_config_default(fn)
+    relevant_section = ret["ProjectionStrength"]
+    relevant_section["cfg_root"] = ret["cfg_root"]
+    path_local_to_cfg_root(relevant_section, ["cache_manifest", "h5_cache"])
+    return relevant_section
 
 
 class ProjectionStrength(object):
@@ -83,7 +82,7 @@ class ProjectionStrength(object):
         from .per_layer_proj_mats import per_layer_proj_mats
         M_i = self.__call__(hemi="ipsi", src_type="wild_type", measurement=measurement)
         M_c = self.__call__(hemi="contra", src_type="wild_type", measurement=measurement)
-        res = per_layer_proj_mats(self.cfg, M_i, M_c, scale=(measurement == "connection density"),
+        res = per_layer_proj_mats(self.cfg, self.cfg_file, M_i, M_c, scale=(measurement == "connection density"),
                                   vol_dict=self.layer_volume_fractions())
         with h5py.File(self.cfg["h5_cache"], 'r+') as h5:
             for k, v in res.items():
