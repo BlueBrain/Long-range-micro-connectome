@@ -4,8 +4,8 @@
     "layer_profiles": {
       "source": "digitize",
       "parameters":{
-        "filename": "../img/layer_profile%d.png",
-        "cbar_filename": "../img/relative_density_cbar.png",
+        "filename": "img/layer_profile%d.png",
+        "cbar_filename": "img/relative_density_cbar.png",
         "shape": [1, 5],
         "cbar_width": [0, 1635],
         "cbar_height": 30,
@@ -17,8 +17,8 @@
     "frequency_per_source":{
       "source": "digitize",
       "parameters":{
-        "filename": "../img/relative_frequency_%s.png",
-        "cbar_filename": "../img/relative_frequency_cbar.png",
+        "filename": "img/relative_frequency_%s.png",
+        "cbar_filename": "img/relative_frequency_cbar.png",
         "shape": [6, 1],
         "cbar_width": [15, 1160],
         "cbar_height": 15,
@@ -29,8 +29,8 @@
     "frequency_per_module":{
       "source": "digitize",
       "parameters": {
-        "filename": "../img/module_rel_frequency_%s.png",
-        "cbar_filename": "../img/relative_frequency_cbar.png",
+        "filename": "img/module_rel_frequency_%s.png",
+        "cbar_filename": "img/relative_frequency_cbar.png",
         "shape": [6, 1],
         "cbar_width": [15, 1160],
         "cbar_height": 15,
@@ -50,8 +50,8 @@
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
       "func_predict_innervation": "(x ** 0.5) / 2",
-      "json_cache": "tree_model_final_23.json",
-      "h5_cache": "tree_model_final.h5",
+      "json_cache": "cache/ptypes/tree_model_final_23.json",
+      "h5_cache": "cache/ptypes/tree_model_final.h5",
       "h5_dset": "23",
       "p_func": "10 ** -x"
     },
@@ -60,8 +60,8 @@
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
       "func_predict_innervation": "(x ** 0.5) / 3",
-      "json_cache": "tree_model_final_4.json",
-      "h5_cache": "tree_model_final.h5",
+      "json_cache": "cache/ptypes/tree_model_final_4.json",
+      "h5_cache": "cache/ptypes/tree_model_final.h5",
       "h5_dset": "4",
       "p_func": "10 ** -x"
     },
@@ -70,8 +70,8 @@
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
       "func_predict_innervation": "(x ** 0.5) / 4.5",
-      "json_cache": "tree_model_final_5it.json",
-      "h5_cache": "tree_model_final.h5",
+      "json_cache": "cache/ptypes/tree_model_final_5it.json",
+      "h5_cache": "cache/ptypes/tree_model_final.h5",
       "h5_dset": "5it",
       "p_func": "10 ** -x"
     },
@@ -80,8 +80,8 @@
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
       "func_predict_innervation": "(x ** 0.5) / 3",
-      "json_cache": "tree_model_final_5pt.json",
-      "h5_cache": "tree_model_final.h5",
+      "json_cache": "cache/ptypes/tree_model_final_5pt.json",
+      "h5_cache": "cache/ptypes/tree_model_final.h5",
       "h5_dset": "5pt",
       "p_func": "10 ** -x"
     },
@@ -90,8 +90,8 @@
       "mat_tree_topology": "normalized connection density",
       "mat_predict_innervation": "normalized connection strength",
       "func_predict_innervation": "(x ** 0.5) / 2",
-      "json_cache": "tree_model_final_6.json",
-      "h5_cache": "tree_model_final.h5",
+      "json_cache": "cache/ptypes/tree_model_final_6.json",
+      "h5_cache": "cache/ptypes/tree_model_final.h5",
       "h5_dset": "6",
       "p_func": "10 ** -x"
     }
@@ -107,7 +107,7 @@
     "prepare_args": {},
     "plot_dir": "plots/white_matter/mapping",
     "plot_extension": ".png",
-    "h5_fn": "voxel_mappings.h5",
+    "h5_fn": "cache/mapping/voxel_mappings.h5",
     "hemi_mirror_at": 136
   },
   "ProjectionStrength":
@@ -115,8 +115,8 @@
     "per_projection_class_ipsi":{
       "source": "digitize",
       "parameters": {
-        "filename": "../img/per_layer_%s_ipsi.png",
-        "cbar_filename": "../img/per_layer_cbar.PNG",
+        "filename": "img/per_layer_%s_ipsi.png",
+        "cbar_filename": "img/per_layer_cbar.PNG",
         "shape": [43, 27],
         "cbar_width": [0, 3041],
         "cbar_height": 12,
@@ -127,8 +127,8 @@
     "per_projection_class_contra":{
       "source": "digitize",
       "parameters": {
-        "filename": "../img/per_layer_%s_contra.png",
-        "cbar_filename": "../img/per_layer_cbar.PNG",
+        "filename": "img/per_layer_%s_contra.png",
+        "cbar_filename": "img/per_layer_cbar.PNG",
         "shape": [43, 27],
         "cbar_width": [0, 3041],
         "cbar_height": 12,
@@ -141,11 +141,11 @@
     "scaling": {"region": "SSp-ll", "value": 0.05534342,
       "measurement": "connection density"},
     "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
-    "h5_cache": "projection_matrices.h5"
+    "h5_cache": "cache/strength/projection_matrices.h5"
   },
   "SynapseTypes":
   {
-    "synapse_type_yaml": "../yaml/synapse_type.yaml",
+    "synapse_type_yaml": "yaml/synapse_type.yaml",
     "synapse_type_mapping":{
       "23": "type_1",
       "4": "type_2",
