@@ -44,8 +44,8 @@ class ProjectionClassSpecificMatC(ProjectionClassSpecificMat):
 
 
 def per_layer_proj_mats(cfg, cfg_file, M_i, M_c, scale=True, vol_dict=None):
-    per_layer_mdl_idx_fr = cfg["per_layer_module_separators"]
-    per_layer_mdl_idx_to = numpy.unique(mpr.module_idx.values())
+    per_layer_mdl_idx_fr = cfg["module_separators_source"]
+    per_layer_mdl_idx_to = cfg["module_separators_target"]
     frac_lost_in_thresh = cfg["threshold_fraction"]
 
     def dictmap(d, func):
