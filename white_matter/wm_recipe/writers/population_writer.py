@@ -14,24 +14,28 @@ class PopulationWriter(object):
             single_population(nm)
         fid.write('\n')
 
+    def __dict2str__(self, a_dict):
+        out_dict = {}
+        for k, v in a_dict.items():
+            if isinstance(v, dict):
+                out_dict[str(k)] = self.__dict2str__(v)
+            elif isinstance(v, list):
+                out_dict[str(k)] = map(str, v)
+            else:
+                out_dict[str(k)] = str(v)
+        return out_dict
+
     def __source_filters_str__(self, source_name):
-        def dict2str(a_dict):
-            out_dict = {}
-            for k, v in a_dict.items():
-                if isinstance(v, dict):
-                    out_dict[str(k)] = dict2str(v)
-                elif isinstance(v, list):
-                    out_dict[str(k)] = map(str, v)
-                else:
-                    out_dict[str(k)] = str(v)
-            return out_dict
-        return str(dict2str(self.mpr.source_filters[source_name]))
+        return str(self.__dict2str__(self.mpr.source_filters[source_name]))
+
+    def __source_layer_str__(self, source_name):
+        return str(self.__dict2str__(self.mpr.source_layers[source_name]))
 
     def __call__(self, fid):
         def single_population(reg_name, source_name):
             fid.write('\t- name: ' + self.namer.comb_pop(reg_name, source_name) + '\n')
             fid.write('\t  atlas_region:\n\t\t  name: ' + reg_name + '\n')
-            fid.write('\t\t  subregions: ' + str(self.mpr.source_layers[source_name]) + '\n')
+            fid.write('\t\t  subregions: ' + self.__source_layer_str__(source_name) + '\n')
             fid.write('\t  filters: ' + self.__source_filters_str__(source_name) + '\n\n')
 
         self.write_base_populations(fid)
