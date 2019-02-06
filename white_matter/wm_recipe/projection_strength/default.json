@@ -4,8 +4,8 @@
     "per_projection_class_ipsi":{
       "source": "digitize",
       "parameters": {
-        "filename": "../img/per_layer_%s_ipsi.png",
-        "cbar_filename": "../img/per_layer_cbar.PNG",
+        "filename": "img/per_layer_%s_ipsi.png",
+        "cbar_filename": "img/per_layer_cbar.PNG",
         "shape": [43, 27],
         "cbar_width": [0, 3041],
         "cbar_height": 12,
@@ -16,8 +16,8 @@
     "per_projection_class_contra":{
       "source": "digitize",
       "parameters": {
-        "filename": "../img/per_layer_%s_contra.png",
-        "cbar_filename": "../img/per_layer_cbar.PNG",
+        "filename": "img/per_layer_%s_contra.png",
+        "cbar_filename": "img/per_layer_cbar.PNG",
         "shape": [43, 27],
         "cbar_width": [0, 3041],
         "cbar_height": 12,

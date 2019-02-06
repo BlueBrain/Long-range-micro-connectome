@@ -1,10 +1,9 @@
 import mcmodels
 import numpy
-from white_matter.wm_recipe import region_mapper
-#M = region_mapper.RegionMapper()
 '''Get the WILD TYPE connection strength matrices for all 4 normalization schemes 
 (unnormalized, by size of source region, by size of target region, by both) and
 both ipsi and contra-lateral'''
+
 
 def make_voxel_model(cfg):
     cache = mcmodels.core.VoxelModelCache(manifest_file=cfg["cache_manifest"])
