@@ -20,6 +20,8 @@ class PopulationWriter(object):
             for k, v in a_dict.items():
                 if isinstance(v, dict):
                     out_dict[str(k)] = dict2str(v)
+                elif isinstance(v, list):
+                    out_dict[str(k)] = map(str, v)
                 else:
                     out_dict[str(k)] = str(v)
             return out_dict

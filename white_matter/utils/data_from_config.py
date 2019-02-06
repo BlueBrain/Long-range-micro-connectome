@@ -67,7 +67,15 @@ class ConfiguredDataSource(object):
             self.patterns = dict([(k, v[prop_order]) for k, v in self.patterns.items()])
 
     def direct_read(self, cfg):
-        self.patterns = dict([(k, numpy.array(v)) for k, v in cfg["patterns"].items()])
+        self.patterns = cfg["patterns"].copy()
+        if cfg.get("keys", None) == "int":
+            self.patterns = dict([(int(k), v) for k, v in self.patterns.items()])
+        elif cfg.get("keys", None) == "float":
+            self.patterns = dict([(float(k), v) for k, v in self.patterns.items()])
+        elif cfg.get("keys", None) == "str":
+            self.patterns = dict([(str(k), v) for k, v in self.patterns.items()])
+        if cfg.get("values", None) == "array":
+            self.patterns = dict([(k, numpy.array(v)) for k, v in self.patterns.items()])
         self.N = len(self.patterns)
 
     def condense(self, idx_fr, idx_to, func=numpy.nansum):

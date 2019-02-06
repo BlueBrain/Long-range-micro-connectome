@@ -17,8 +17,9 @@ class LayerProfiles(ConfiguredDataSource):
         self.N = self.cfg["layer_profile_number"]
         self.pattern_layers = self.cfg["layer_profile_layers"]
         self.parameterize(self.cfg)
-        for k, v in self.patterns.items():
-            self.patterns[k] = v ** 2
+        if self.cfg[self.__class__.relevant_section]["source"] == "digitize":
+            for k, v in self.patterns.items():
+                self.patterns[k] = v ** 2
 
     def __pattern_to_filenames__(self, pat):
         return dict([(i, pat % i) for i in range(1, self.N + 1)])
