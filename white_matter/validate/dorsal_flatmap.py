@@ -1,6 +1,6 @@
 from mcmodels.core.cortical_map import CorticalMap
 from mcmodels.core import VoxelModelCache
-from white_matter.wm_recipe import region_mapper
+from white_matter.wm_recipe.parcellation import RegionMapper
 import numpy
 
 
@@ -16,7 +16,7 @@ class DorsalFlatmap(object):
         self._cache = VoxelModelCache(manifest_file=manifest_file)
         self._vol = self._cache.get_annotation_volume()[0]
         self._tree = self._cache.get_structure_tree()
-        self._mpr = region_mapper.RegionMapper()
+        self._mpr = RegionMapper()
         self._make_reverse_lookup()
         self._make_mapped_idx()
         self._make_path_depths()

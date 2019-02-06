@@ -6,7 +6,7 @@ from white_matter.wm_recipe.projection_strength import ProjectionStrength
 from white_matter.wm_recipe.synapse_types import SynapseTypes
 from white_matter.wm_recipe.writers import *
 from white_matter.utils.projection_namer import ProjectionNamer
-from white_matter.wm_recipe.region_mapper import RegionMapper
+from white_matter.wm_recipe.parcellation import RegionMapper
 from white_matter import __version__
 
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     mapper = ProjectionMapper(cfg_file=cfg_file)
     syn_types = SynapseTypes(cfg_file=cfg_file)
     namer = ProjectionNamer()
-    mpr = RegionMapper()
+    mpr = RegionMapper(cfg_file=cfg_file)
 
 
     class tab_replacer(object):

@@ -2,10 +2,10 @@ def main(cfg):
     import h5py, os
     from white_matter.wm_recipe.projection_strength.master_proj_mats import master_proj_mats
     from white_matter.wm_recipe.projection_strength import ProjectionStrength
-    cfg_root = cfg["cfg_root"]
-    out_h5_fn = cfg["h5_cache"]
-    if not os.path.isabs(out_h5_fn):
-        out_h5_fn = os.path.join(cfg_root, out_h5_fn)
+    from white_matter.wm_recipe.parcellation import RegionMapper
+    mpr = RegionMapper(cfg["BrainParcellation"])
+    relevant_chapter = cfg["ProjectionStrength"]
+    out_h5_fn = relevant_chapter["h5_cache"]
     if not os.path.exists(os.path.split(out_h5_fn)[0]):
         os.makedirs(os.path.split(out_h5_fn)[0])
     if os.path.exists(out_h5_fn):
@@ -13,7 +13,7 @@ def main(cfg):
     else:
         h5 = h5py.File(out_h5_fn, 'w')
     try:
-        M = master_proj_mats(cfg)
+        M = master_proj_mats(relevant_chapter, mpr)
         for k, v in M.items():
             h5.require_dataset(ProjectionStrength._dict_to_path(dict(k)), v.shape,
                                float, data=v)
@@ -25,12 +25,12 @@ def main(cfg):
 
 if __name__ == "__main__":
     import sys
-    import json
     import os
     from white_matter.utils.paths_in_config import path_local_to_cfg_root
+    from white_matter.utils.data_from_config import read_config
     cfg_file = sys.argv[1]
-    with open(cfg_file, 'r') as fid:
-        cfg = json.load(fid)["ProjectionStrength"]
-    cfg["cfg_root"] = os.path.split(cfg_file)[0]
-    path_local_to_cfg_root(cfg, ["cache_manifest", "h5_cache"])
+    cfg = read_config(cfg_file)
+    cfg["ProjectionStrength"]["cfg_root"] = cfg["cfg_root"]
+    path_local_to_cfg_root(cfg["ProjectionStrength"],
+                           ["cache_manifest", "h5_cache"])
     main(cfg)

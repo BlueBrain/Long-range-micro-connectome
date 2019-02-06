@@ -248,9 +248,12 @@ def fit_tree_to_mat(T, M):
 
 
 class TreeInnervationModel(object):
-    def __init__(self, T, p_func=lambda x: 10**-x, val_mask=None):
-        from white_matter.wm_recipe.region_mapper import RegionMapper
-        self.mpr = RegionMapper()
+    def __init__(self, T, p_func=lambda x: 10**-x, val_mask=None, mpr=None):
+        if mpr is None:
+            from white_matter.wm_recipe.parcellation import RegionMapper
+            self.mpr = RegionMapper()
+        else:
+            self.mpr = mpr
         self.T = T
         self.p_func = p_func
         self.leaves = get_leaves(self.T)
@@ -335,9 +338,8 @@ class TreeInnervationModel(object):
 
     def draw(self, **kwargs):
         from matplotlib import pyplot as plt
-        from white_matter.wm_recipe import region_mapper
         ax = plt.figure(figsize=(9, 9)).add_axes([0, 0, 1, 1])
-        mpr = region_mapper.RegionMapper()
+        mpr = self.mpr
         pos = layout_radial_tree(self.T, get_root(self.T), length=['log_p'])
         lbls = dict(enumerate(mpr.region_names))
         lbls.update(dict([(i + len(mpr.region_names), v) for i, v in enumerate(mpr.region_names)]))
@@ -380,13 +382,13 @@ class TreeInnervationModel(object):
         return cls(T, **kwargs)
 
     @classmethod
-    def from_config(cls, cfg):
+    def from_config(cls, cfg, **kwargs):
         import os, h5py
         if not os.path.exists(cfg["json_cache"]) or not os.path.exists(cfg["h5_cache"]):
             raise NotImplementedError("I will implement this later!")
         h5 = h5py.File(str(cfg["h5_cache"]), 'r')
         val_mask = h5[str(cfg["h5_dset"])][:]
-        ret = cls.from_json(cfg["json_cache"], val_mask=val_mask) #TODO: read p_func from cfg
+        ret = cls.from_json(cfg["json_cache"], val_mask=val_mask, **kwargs) #TODO: read p_func from cfg
         ret.cfg = cfg
         return ret
 
@@ -402,17 +404,22 @@ class TreeInnervationModelCollection(object):
     def from_config_file(cls, cfg_file=None):
         import json, os
         from white_matter.utils.paths_in_config import path_local_to_path
+        from white_matter.utils.data_from_config import read_config
+        from white_matter.wm_recipe.parcellation import RegionMapper
 
         if cfg_file is None:
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
+            mpr = RegionMapper()
+        else:
+            mpr = RegionMapper(cfg_file=cfg_file)
 
-        with open(cfg_file, 'r') as fid:
-            cfg = json.load(fid)["PTypes"]
+        cfg = read_config(cfg_file)
+        cfg_root = cfg["cfg_root"]
+        cfg = cfg["PTypes"]
         mdl_dict = {}
-        local_path = os.path.split(cfg_file)[0]
         for k in cfg.keys():
-            path_local_to_path(cfg[k], local_path, ["json_cache", "h5_cache"])
-            mdl_dict[k] = TreeInnervationModel.from_config(cfg[k])
+            path_local_to_path(cfg[k], cfg_root, ["json_cache", "h5_cache"])
+            mdl_dict[k] = TreeInnervationModel.from_config(cfg[k], mpr=mpr)
         return cls(mdl_dict)
 
 

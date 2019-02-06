@@ -1,8 +1,9 @@
 from white_matter.utils.data_from_config import read_config as read_config_default
+from white_matter.wm_recipe.parcellation import RegionMapper
 
 
 def read_config(fn):
-    from white_matter.utils.paths_in_config import path_local_to_cfg_root, path_local_to_path
+    from white_matter.utils.paths_in_config import path_local_to_cfg_root
     ret = read_config_default(fn)
     relevant_section = ret["ProjectionStrength"]
     relevant_section["cfg_root"] = ret["cfg_root"]
@@ -16,6 +17,9 @@ class ProjectionStrength(object):
         if cfg_file is None:
             import os
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
+            self.mpr = RegionMapper()
+        else:
+            self.mpr = RegionMapper(cfg_file=cfg_file)
         self.cfg_file = cfg_file
         self.cfg = read_config(cfg_file)
         self._DSET_SHAPE = (43, 43)
@@ -47,9 +51,7 @@ class ProjectionStrength(object):
         h5.close()
 
     def _normalized_per_layer(self, measurement):
-        from white_matter.wm_recipe.region_mapper import RegionMapper
         import numpy, h5py
-        mpr = RegionMapper()
         rel_vols = self.layer_volume_fractions()
         base_measurement = measurement[11:] #name of corresponding non-normalized measurement
         with h5py.File(self.cfg["h5_cache"], 'r+') as h5:
@@ -57,13 +59,13 @@ class ProjectionStrength(object):
                 B = self.__call__(measurement=base_measurement, src_type="wild_type", hemi=hemi)
                 N = self.__call__(measurement=measurement, src_type="wild_type", hemi=hemi)
                 V = numpy.vstack(numpy.mean(B / N, axis=1))
-                for src_type in mpr.source_names:
+                for src_type in self.mpr.source_names:
                     tmp_type = src_type
                     fac = 1.0
                     if src_type.startswith('5'):
                         tmp_type = '5'
                         fac = 0.5
-                    Vi = fac * V * numpy.vstack([rel_vols[_x][tmp_type] for _x in mpr.region_names])
+                    Vi = fac * V * numpy.vstack([rel_vols[_x][tmp_type] for _x in self.mpr.region_names])
                     M = self.__call__(measurement=base_measurement, src_type=src_type, hemi=hemi)
                     MN = M / Vi
                     MN[numpy.isinf(MN)] = numpy.NaN
@@ -82,7 +84,8 @@ class ProjectionStrength(object):
         from .per_layer_proj_mats import per_layer_proj_mats
         M_i = self.__call__(hemi="ipsi", src_type="wild_type", measurement=measurement)
         M_c = self.__call__(hemi="contra", src_type="wild_type", measurement=measurement)
-        res = per_layer_proj_mats(self.cfg, self.cfg_file, M_i, M_c, scale=(measurement == "connection density"),
+        res = per_layer_proj_mats(self.cfg, self.mpr, M_i, M_c,
+                                  scale=(measurement == "connection density"),
                                   vol_dict=self.layer_volume_fractions())
         with h5py.File(self.cfg["h5_cache"], 'r+') as h5:
             for k, v in res.items():

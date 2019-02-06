@@ -142,11 +142,11 @@ class LayerProfileVsRawData(object):
     def from_cache(cls, cache):
         from white_matter.wm_recipe.projection_strength import ProjectionStrength
         from white_matter.wm_recipe import layer_profiles
-        from white_matter.wm_recipe import region_mapper
+        from white_matter.wm_recipe.parcellation import RegionMapper
         S = ProjectionStrength()
         mxr = layer_profiles.ProfileMixer(S)
         lp = layer_profiles.LayerProfiles()
-        mpr = region_mapper.RegionMapper()
+        mpr = RegionMapper()
         return cls(cache, mpr, mxr, lp)
 
 

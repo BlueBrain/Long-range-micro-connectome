@@ -1,4 +1,22 @@
 {
+  "BrainParcellation":{
+    "region_names": ["FRP","MOs","ACAd","ACAv","PL","ILA","ORBl","ORBm","ORBvl",
+                             "AId","AIv","AIp","GU","VISC",
+                             "SSs","SSp-bfd","SSp-tr","SSp-ll","SSp-ul","SSp-un","SSp-n","SSp-m","MOp",
+                             "VISal","VISl","VISp","VISpl","VISli","VISpor","VISrl",
+                             "VISa","VISam","VISpm","RSPagl","RSPd","RSPv",
+                             "AUDd","AUDp","AUDpo","AUDv","TEa","PERI","ECT"],
+    "module_names": ["prefrontal", "anterolateral", "somatomotor", "visual", "medial", "temporal"],
+    "projection_classes": ["23", "4", "5it", "5pt", "6"],
+    "module_idx": {"prefrontal": [0, 9], "anterolateral": [9, 14], "somatomotor": [14, 23],
+                           "visual": [23, 30], "medial": [30, 36], "temporal": [36, 43]},
+    "class_to_layer": {"23": ["l2", "l3"], "4": ["l4"], "5it": ["l5"],
+                              "5pt": ["l5"], "6": ["l6"]},
+    "projection_class_fltrs": {"23": {"synapse_type": "EXC"}, "4": {"synapse_type": "EXC"},
+                               "5it": {"synapse_type": "EXC", "proj_type": "intratelencephalic"},
+                               "5pt": {"synapse_type": "EXC", "proj_type": "pyramidal tract"},
+                               "6": {"synapse_type": "EXC"}}
+  },
   "LayerProfiles":
   {
     "layer_profiles": {
@@ -140,7 +158,7 @@
     "module_separators_target": [ 0,  9, 14, 23, 30, 36, 43],
     "threshold_fraction": 0.05,
     "scaling": {"region": "SSp-ll", "value": 0.05534342,
-      "measurement": "connection density"},
+                "measurement": "connection density"},
     "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
     "h5_cache": "cache/strength/projection_matrices.h5"
   },

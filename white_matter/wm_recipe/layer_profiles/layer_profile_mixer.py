@@ -1,9 +1,8 @@
-from white_matter.wm_recipe.region_mapper import RegionMapper
-from white_matter.utils.sample_from_image import ImgSampler
+from white_matter.wm_recipe.parcellation import RegionMapper
 import numpy
 from white_matter.utils.data_from_config import ConfiguredDataSource, read_config
 
-mpr = RegionMapper()
+#mpr = RegionMapper()
 
 
 class LayerProfiles(ConfiguredDataSource):
@@ -26,25 +25,30 @@ class LayerProfiles(ConfiguredDataSource):
 
 
 class SourceProfiles(ConfiguredDataSource):
-    groups = mpr.source_names
     relevant_section = "frequency_per_source"
     relevant_chapter = "LayerProfiles"
 
-    def __init__(self, cfg):
-        self.groups = self.__class__.groups
-        super(SourceProfiles, self).__init__(cfg)
+    def __init__(self, cfg_file, mpr):
+        super(SourceProfiles, self).__init__(cfg_file)
+        self.groups = self.__groups__(mpr)
         self.parameterize(self.cfg)
         for k, v in self.patterns.items():
             self.patterns[k] = len(v) * v / v.sum()
+
+    def __groups__(self, mpr):
+        return mpr.source_names
 
     def __pattern_to_filenames__(self, pat):
         return dict([(grp, pat % grp) for grp in self.groups])
 
 
 class ModuleProfiles(SourceProfiles):
-    groups = ['%s_intra' % k for k in mpr.module_names] \
-             + ['%s_inter' % k for k in mpr.module_names]
     relevant_section = "frequency_per_module"
+
+    def __groups__(self, mpr):
+        return ['%s_intra' % k for k in mpr.module_names] \
+             + ['%s_inter' % k for k in mpr.module_names]
+
 
 
 class ProfileMixer(object):
@@ -52,10 +56,13 @@ class ProfileMixer(object):
         if cfg_file is None:
             import os
             cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
+            self.mpr = RegionMapper()
+        else:
+            self.mpr = RegionMapper(cfg_file=cfg_file)
         self.cfg = read_config(cfg_file)["LayerProfiles"]
-        self.profiles_s = SourceProfiles(cfg_file)
-        self.profiles_m = ModuleProfiles(cfg_file)
-        self.modules = mpr.module_idx
+        self.profiles_s = SourceProfiles(cfg_file, self.mpr)
+        self.profiles_m = ModuleProfiles(cfg_file, self.mpr)
+        self.modules = self.mpr.module_idx
         self.pw_strength = proj_strength
         self._hierarchy = ['ACAd', 'AIv', 'TEa', 'ACAv', 'MOs', 'VISC', 'ORBvl',
                           'SSp-un', 'VISa', 'VISpor', 'VISam', 'AUDpo', 'VISpm',
@@ -67,14 +74,14 @@ class ProfileMixer(object):
                              'temporal', 'somatomotor']
         '''No hierarchy reported for 4 regions. We put them in the middle (index 20).'''
         self.idx2hierarchy = [self._hierarchy.index(_x) if _x in self._hierarchy
-                              else 20 for _x in mpr.region_names]
+                              else 20 for _x in self.mpr.region_names]
         self.m_idx2hierarchy = [self._m_hierarchy.index(_x)
-                                for _x in mpr.module_names]
+                                for _x in self.mpr.module_names]
 
     def predict_mix_from_sources(self, mod_fr, mod_to):
-        kk = mpr.source_names
-        idx_fr = mpr.module2idx(mod_fr)
-        idx_to = mpr.module2idx(mod_to)
+        kk = self.mpr.source_names
+        idx_fr = self.mpr.module2idx(mod_fr)
+        idx_to = self.mpr.module2idx(mod_to)
         pw_exists = [(self.pw_strength(src_type=_k)[:, idx_to][idx_fr] > 0)
                      for _k in kk]
         N = map(numpy.sum, pw_exists)
@@ -84,8 +91,8 @@ class ProfileMixer(object):
         return result
 
     def projection_is_ff(self, i, j):
-        m_i = mpr.idx2module(i)
-        m_j = mpr.idx2module(j)
+        m_i = self.mpr.idx2module(i)
+        m_j = self.mpr.idx2module(j)
         if m_i == m_j or True:
             return self.idx2hierarchy[i] > self.idx2hierarchy[j]
         else:
@@ -101,8 +108,8 @@ class ProfileMixer(object):
         return self.profiles_s.patterns[source] * adjust
 
     def mix(self, source, i, j, use_hierarchy=True):
-        mod_fr = mpr.idx2module(i)
-        mod_to = mpr.idx2module(j)
+        mod_fr = self.mpr.idx2module(i)
+        mod_to = self.mpr.idx2module(j)
         result = self.mix_module(source, mod_fr, mod_to)
         if use_hierarchy:
             if self.projection_is_ff(i, j):
@@ -120,7 +127,7 @@ class ProfileMixer(object):
         return numpy.argmax(rel)
 
     def full_mat(self, source, **kwargs):
-        N = mpr.n_regions()
+        N = self.mpr.n_regions()
         return numpy.array([[self.max(source, i, j, **kwargs)
                              for j in range(N)] for i in range(N)])
 

@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 import numpy
-from white_matter.wm_recipe import region_mapper
+from white_matter.wm_recipe.parcellation import RegionMapper
+from white_matter.utils.data_from_config import read_config as read_config_default
 
-mpr = region_mapper.RegionMapper()
 
-
-def load_cfg(cfg_file):
-    import json, os
+def read_cfg(cfg_file):
     from white_matter.utils.paths_in_config import path_local_to_path
 
-    with open(cfg_file, 'r') as fid:
-        cfg = json.load(fid)["PTypes"]
-    local_path = os.path.split(cfg_file)[0]
-    for k in cfg.keys():
-        path_local_to_path(cfg[k], local_path, ["json_cache", "h5_cache"])
+    cfg = read_config_default(cfg_file)
+    cfg_root = cfg["cfg_root"]
+    for k in cfg["PTypes"].keys():
+        path_local_to_path(cfg["PTypes"][k], cfg_root, ["json_cache", "h5_cache"])
     return cfg
 
 
@@ -26,11 +23,11 @@ def src_mat(proj_str, src, measurement):
     return predict_fun(M)
 
 
-def make_model_for_source(S, src, cfg):
+def make_model_for_source(S, src, cfg, **kwargs):
     from white_matter.wm_recipe.p_types.ptype_tree_model import TreeInnervationModel
     F_topo = src_mat(S, src, cfg["mat_tree_topology"])
     F = src_mat(S, src, cfg["mat_predict_innervation"])
-    mdl = TreeInnervationModel.from_con_mats(F_topo, F)
+    mdl = TreeInnervationModel.from_con_mats(F_topo, F, **kwargs)
     return mdl.T, mdl._val_mask
 
 
@@ -52,8 +49,10 @@ def write_model_for_source(T, F, cfg):
 
 
 def main(S, cfg):
+    mpr = RegionMapper(cfg["BrainParcellation"])
+    cfg = cfg["PTypes"]
     for src in cfg.keys():
-        T, M = make_model_for_source(S, src, cfg[src])
+        T, M = make_model_for_source(S, src, cfg[src], mpr=mpr)
         write_model_for_source(T, M, cfg[src])
 
 
@@ -62,11 +61,11 @@ if __name__ == "__main__":
     import json
     import os
     from white_matter.wm_recipe.projection_strength import ProjectionStrength
-    cfg_ptypes = load_cfg(sys.argv[1])
+    cfg = read_cfg(sys.argv[1])
     if len(sys.argv) > 2:
         S = ProjectionStrength(cfg_file=sys.argv[2])
     else:
-        S = ProjectionStrength()
-    main(S, cfg_ptypes)
+        S = ProjectionStrength(cfg_file=sys.argv[1])
+    main(S, cfg)
 
 

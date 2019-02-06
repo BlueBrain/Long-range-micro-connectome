@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy
 import logging
-from white_matter.wm_recipe.region_mapper import RegionMapper
+from white_matter.wm_recipe.parcellation import RegionMapper
 from white_matter.wm_recipe.projection_mapping import VoxelNodeBaryMapper, VoxelArrayBaryMapper
 
 
@@ -27,9 +27,8 @@ def main(cfg, obj, src):
     import h5py
     import os
     from matplotlib import pyplot as plt
-    mpr = RegionMapper()
-
-    cfg_root = cfg["cfg_root"]
+    mpr = RegionMapper(cfg["BrainParcellation"])
+    cfg = cfg["ProjectionMapping"]
 
     target_args = cfg["target_args"]
     pp_use = cfg["pp_use"]
@@ -95,18 +94,17 @@ def main(cfg, obj, src):
 
 if __name__ == "__main__":
     import sys
-    import json
     import os
     from white_matter.utils.paths_in_config import path_local_to_cfg_root
+    from white_matter.utils.data_from_config import read_config
     cfg_file = sys.argv[1]
-    with open(cfg_file, 'r') as fid:
-        cfg = json.load(fid)["ProjectionMapping"]
-    cfg["cfg_root"] = os.path.split(cfg_file)[0]
-    path_local_to_cfg_root(cfg, ["cache_manifest", "h5_fn"])
-    obj = make_mapper(cfg)
+    cfg = read_config(cfg_file)
+    cfg["ProjectionMapping"]["cfg_root"] = cfg["cfg_root"]
+    path_local_to_cfg_root(cfg["ProjectionMapping"], ["cache_manifest", "h5_fn"])
+    obj = make_mapper(cfg["ProjectionMapping"])
     if len(sys.argv) > 2:
         main(cfg, obj, sys.argv[2])
     else:
-        M = RegionMapper()
+        M = RegionMapper(cfg_file=cfg_file)
         for src in M.region_names:
             main(cfg, obj, src)

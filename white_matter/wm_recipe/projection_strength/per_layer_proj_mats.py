@@ -1,12 +1,11 @@
 import numpy
-from white_matter.wm_recipe.region_mapper import RegionMapper
-from white_matter.utils.sample_from_image import ImgSampler
+from white_matter.wm_recipe.parcellation import RegionMapper
 from white_matter.utils.data_from_config import ConfiguredDataSource
 '''The strategy to combine a wild type connection matrix with digitized 
 data for projection-class-specific projection strength to derive dense
 projection-class-specific matrices'''
 
-mpr = RegionMapper()
+#mpr = RegionMapper()
 
 
 def deactivate_where_volume_is_zero(mats, vol_dict, mpr):
@@ -24,12 +23,9 @@ class ProjectionClassSpecificMat(ConfiguredDataSource):
     relevant_chapter = "ProjectionStrength"
     relevant_section = "per_projection_class_ipsi"
 
-    def __init__(self, cfg_file=None):
+    def __init__(self, cfg, mpr):
         self.source_names = mpr.source_names
-        if cfg_file is None:
-            import os
-            cfg_file = os.path.join(os.path.split(__file__)[0], 'default.json')
-        super(ProjectionClassSpecificMat, self).__init__(cfg_file)
+        super(ProjectionClassSpecificMat, self).__init__(cfg)
         self.parameterize(self.cfg)
         self.patterns = dict([(k, 10 ** v) for k, v in self.patterns.items()])
 
@@ -43,7 +39,7 @@ class ProjectionClassSpecificMatC(ProjectionClassSpecificMat):
     relevant_section = 'per_projection_class_contra'
 
 
-def per_layer_proj_mats(cfg, cfg_file, M_i, M_c, scale=True, vol_dict=None):
+def per_layer_proj_mats(cfg, mpr, M_i, M_c, scale=True, vol_dict=None):
     per_layer_mdl_idx_fr = cfg["module_separators_source"]
     per_layer_mdl_idx_to = cfg["module_separators_target"]
     frac_lost_in_thresh = cfg["threshold_fraction"]
@@ -59,8 +55,8 @@ def per_layer_proj_mats(cfg, cfg_file, M_i, M_c, scale=True, vol_dict=None):
         M_c = scalar * M_c
 
     '''GENERATE LAYER-SPECIFIC MATRICES'''
-    m_ipsi = ProjectionClassSpecificMat(cfg_file)
-    m_contra = ProjectionClassSpecificMatC(cfg_file)
+    m_ipsi = ProjectionClassSpecificMat(cfg, mpr)
+    m_contra = ProjectionClassSpecificMatC(cfg, mpr)
     '''CONDENSE LAYER SPECIFIC MATRICES TO MODULE PATHWAYS (6 BY 6)'''
     m_ipsi.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum)
     m_contra.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum)
