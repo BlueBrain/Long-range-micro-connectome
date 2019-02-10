@@ -54,15 +54,15 @@ def __make_bins__(xlim, ylim, nbins):
     return xbins, ybins
 
 
-def dot_histogram(ax, locs, xlim, ylim, nbins, max_v=5.0):
-    cols = plt.cm.Green_r
+def dot_histogram(ax, locs, xlim, ylim, nbins, max_v=20.0):
+    cols = plt.cm.Greens_r
     xbins, ybins = __make_bins__(xlim, ylim, nbins)
     H = numpy.histogram2d(locs[:, 1], locs[:, 0],
                           (xbins, ybins))[0]
     xc = 0.5 * (xbins[:-1] + xbins[1:]); yc = 0.5 * (ybins[:-1] + ybins[1:])
     nz = numpy.nonzero(H)
     for ix, iy in zip(*nz):
-        c = cols[H[ix, iy] / max_v]
+        c = cols(H[ix, iy] / max_v)
         ax.plot(xc[ix], yc[iy], ls='none', marker='h', color=c)
 
 
@@ -99,7 +99,7 @@ def main(fn_feather, fn_circ, n_smpl, pick='center',
         loc_pre = loc_pre.loc[valid]
     if include_local:
         pre_finder = PresynNeuronFinder(A._circ)
-        loc_pre.append(pre_finder.presyn_locations(gid_post))
+        loc_pre = loc_pre.append(pre_finder.presyn_locations(gid_post))
 
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1])
@@ -110,9 +110,11 @@ def main(fn_feather, fn_circ, n_smpl, pick='center',
                                    loc_post['z'].values)
     proj_pre = D.transform_points(loc_pre['x'].values, loc_pre['y'].values,
                                   loc_pre['z'].values)
+    print float(len(proj_pre)) / len(loc_pre)
     proj_pre += numpy.random.rand(proj_pre.shape[0], proj_pre.shape[1]) - 0.5
     ax.plot(proj_post[:, 1], proj_post[:, 0], 'ob')
-    dot_histogram(ax, proj_pre, ax.get_xlim(), ax.get_ylim(), (100, 50))
+    dot_histogram(ax, proj_pre, ax.get_xlim(), ax.get_ylim(), (100, 50),
+                  max_v=n_smpl/4)
     #ax.plot(proj_pre[:, 1], proj_pre[:, 0], '.', color=[0.2, 0.75, 0.2])
     plt.show()
 
