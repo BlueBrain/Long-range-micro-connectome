@@ -63,7 +63,7 @@ def dot_histogram(ax, locs, xlim, ylim, nbins, max_v=20.0):
     nz = numpy.nonzero(H)
     for ix, iy in zip(*nz):
         c = cols(H[ix, iy] / max_v)
-        ax.plot(xc[ix], yc[iy], ls='none', marker='h', color=c)
+        ax.plot(xc[ix], yc[iy], ls='none', marker='h', color=c, ms=20)
 
 
 def pick_central_gids(circ, base_gids, N):
@@ -101,7 +101,7 @@ def main(fn_feather, fn_circ, n_smpl, pick='center',
         pre_finder = PresynNeuronFinder(A._circ)
         loc_pre = loc_pre.append(pre_finder.presyn_locations(gid_post))
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=[16.14,  8.59])
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xticks([]); ax.set_yticks([])
     #[D.draw_region(ax, _reg) for _reg in D._mpr.region_names]
@@ -116,6 +116,7 @@ def main(fn_feather, fn_circ, n_smpl, pick='center',
     dot_histogram(ax, proj_pre, ax.get_xlim(), ax.get_ylim(), (100, 50),
                   max_v=n_smpl/4)
     #ax.plot(proj_pre[:, 1], proj_pre[:, 0], '.', color=[0.2, 0.75, 0.2])
+    plt.gcf().savefig(os.path.splitext(fn_feather)[0] + '_presyns.png')
     plt.show()
 
 
