@@ -14,12 +14,31 @@ def conditional_conversion(lst):
     return out
 
 
+def __make_bins__(xlim, ylim, nbins):
+    xlim = numpy.sort(xlim); ylim = numpy.sort(ylim)
+    xbins = numpy.linspace(xlim[0], xlim[1], nbins[0] + 1)
+    ybins = numpy.linspace(ylim[0], ylim[1], nbins[1] + 1)
+    return xbins, ybins
+
+
+def dot_histogram(ax, locs, xlim, ylim, nbins, max_v=5.0):
+    cols = plt.cm.spring
+    xbins, ybins = __make_bins__(xlim, ylim, nbins)
+    H = numpy.histogram2d(locs[:, 1], locs[:, 0],
+                          (xbins, ybins))[0]
+    xc = 0.5 * (xbins[:-1] + xbins[1:]); yc = 0.5 * (ybins[:-1] + ybins[1:])
+    nz = numpy.nonzero(H)
+    for ix, iy in zip(*nz):
+        c = cols[H[ix, iy] / max_v]
+        ax.plot(xc[ix, yc[iy]], ls='none', marker='h', color=c)
+
+
 def pick_central_gids(circ, base_gids, N):
     loc = circ.v2.cells.get(group=base_gids, properties=['x', 'y', 'z'])
     mn_loc = loc.values.mean(axis=0)
-    sqD = numpy.sum((numpy.loc.values - mn_loc) ** 2, axis=1)
+    sqD = numpy.sum((loc.values - mn_loc) ** 2, axis=1)
     gids = base_gids[numpy.argsort(sqD)[:N]]
-    out_loc = loc.values[:, numpy.argsort(sqD)[:N]]
+    out_loc = loc.loc[gids]
     return gids, out_loc
 
 
@@ -54,7 +73,8 @@ def main(fn_feather, fn_circ, n_smpl, pick='center', **kwargs):
                                   loc_pre['z'].values)
     proj_pre += numpy.random.rand(proj_pre.shape[0], proj_pre.shape[1]) - 0.5
     ax.plot(proj_post[:, 1], proj_post[:, 0], 'ob')
-    ax.plot(proj_pre[:, 1], proj_pre[:, 0], '.', color=[0.2, 0.75, 0.2])
+    dot_histogram(ax, proj_pre, ax.get_xlim(), ax.get_ylim(), (100, 50))
+    #ax.plot(proj_pre[:, 1], proj_pre[:, 0], '.', color=[0.2, 0.75, 0.2])
     plt.show()
 
 
