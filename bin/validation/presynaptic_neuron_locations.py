@@ -14,16 +14,30 @@ def conditional_conversion(lst):
     return out
 
 
-def main(fn_feather, fn_circ, n_smpl, **kwargs):
+def pick_central_gids(circ, base_gids, N):
+    loc = circ.v2.cells.get(group=base_gids, properties=['x', 'y', 'z'])
+    mn_loc = loc.values.mean(axis=0)
+    sqD = numpy.sum((numpy.loc.values - mn_loc) ** 2, axis=1)
+    gids = base_gids[numpy.argsort(sqD)[:N]]
+    out_loc = loc.values[:, numpy.argsort(sqD)[:N]]
+    return gids, out_loc
+
+
+def main(fn_feather, fn_circ, n_smpl, pick='center', **kwargs):
     D = validate.DorsalFlatmap()
     A = validate.ProjectionizerResult(fn_feather, fn_circ)
     fltrs = dict([(k, v) if isinstance(v, list) else (k, [v])
                   for k, v in kwargs.items()])
     print fltrs
-    gid_post = numpy.random.choice(A._post_gids,
-                                   numpy.minimum(n_smpl, len(A._post_gids)),
-                                   replace=False)
-    loc_post = A._circ.v2.cells.get(group=gid_post, properties=['x', 'y', 'z'])
+    if pick == 'center':
+        gid_post, loc_post = pick_central_gids(A._circ, A._post_gids, n_smpl)
+    elif pick == 'random':
+        gid_post = numpy.random.choice(A._post_gids,
+                                       numpy.minimum(n_smpl, len(A._post_gids)),
+                                       replace=False)
+        loc_post = A._circ.v2.cells.get(group=gid_post, properties=['x', 'y', 'z'])
+    else:
+        raise Exception("Unknown pick function: %s" % pick)
     loc_pre = A.presynaptic_neuron_locations(gid_post, split=False, unique_neurons=True)
     if len(fltrs) > 0:
         props = A._presynaptic_circ_property(gid_post, fltrs.keys(), unique_neurons=True)
@@ -32,8 +46,8 @@ def main(fn_feather, fn_circ, n_smpl, **kwargs):
         loc_pre = loc_pre.loc[valid]
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-    [D.draw_region(ax, _reg) for _reg in D._mpr.region_names]
-    D.draw_modules(ax)
+    #[D.draw_region(ax, _reg) for _reg in D._mpr.region_names]
+    D.draw_modules(ax, pre_rendered=True)
     proj_post = D.transform_points(loc_post['x'].values, loc_post['y'].values,
                                    loc_post['z'].values)
     proj_pre = D.transform_points(loc_pre['x'].values, loc_pre['y'].values,

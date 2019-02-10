@@ -1,13 +1,13 @@
-import pandas
 import numpy
 import bluepy
+from white_matter_projections.utils import read_frame
 from white_matter.wm_recipe.parcellation import RegionMapper
 
 
 class ProjectionizerResult(object):
 
     def __init__(self, path_feather, path_circ):
-        self._data = pandas.read_feather(path_feather, columns=['sgid', 'tgid', 'x', 'y', 'z'])
+        self._data = read_frame(path_feather, columns=['sgid', 'tgid', 'x', 'y', 'z'])
         self._circ = bluepy.Circuit(path_circ)
         self._mpr = RegionMapper()
         self._post_gids = self._data['tgid'].unique()
