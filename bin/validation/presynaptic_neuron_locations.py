@@ -4,6 +4,39 @@ from matplotlib import pyplot as plt
 import numpy
 
 
+class PresynNeuronFinder(object):
+    def __init__(self, circ):
+        import os, h5py
+        self._str_n2r = 'edges/default/indices/target_to_source/node_id_to_ranges'
+        self._str_r2i = 'edges/default/indices/target_to_source/range_to_edge_id'
+        self._str_e2g = 'edges/default/source_node_id'
+        self.circ = circ
+        self.h5 = h5py.File(os.path.join(circ.config.Run.nrnPath, 'edges.sonata'), 'r')
+
+    def presyn_gids(self, gid):
+        if hasattr(gid, '__iter__'):
+            return self._presyn_gids(gid)
+        R = self.h5[self._str_n2r][gid - 1]
+        RR = self.h5[self._str_r2i][R[0]:R[1]]
+        out_gids = numpy.hstack([numpy.unique(self.h5[self._str_e2g][_R[0]:_R[1]])
+                                 for _R in RR])
+        return numpy.unique(out_gids) + 1
+
+    def _presyn_gids(self, gids):
+        import progressbar
+        pbar = progressbar.ProgressBar()
+        out_gids = []
+        for gid in pbar(gids):
+            out_gids.extend(self.presyn_gids(gid))
+        out_gids = numpy.array(out_gids)
+        out_gids.sort()
+        return out_gids
+
+    def presyn_locations(self, gids):
+        p_gids = self.presyn_gids(gids)
+        return self.circ.v2.cells.get(group=p_gids, properties=['x', 'y', 'z'])
+
+
 def conditional_conversion(lst):
     out = []
     for s in lst:
@@ -22,7 +55,7 @@ def __make_bins__(xlim, ylim, nbins):
 
 
 def dot_histogram(ax, locs, xlim, ylim, nbins, max_v=5.0):
-    cols = plt.cm.spring
+    cols = plt.cm.Green_r
     xbins, ybins = __make_bins__(xlim, ylim, nbins)
     H = numpy.histogram2d(locs[:, 1], locs[:, 0],
                           (xbins, ybins))[0]
@@ -30,7 +63,7 @@ def dot_histogram(ax, locs, xlim, ylim, nbins, max_v=5.0):
     nz = numpy.nonzero(H)
     for ix, iy in zip(*nz):
         c = cols[H[ix, iy] / max_v]
-        ax.plot(xc[ix, yc[iy]], ls='none', marker='h', color=c)
+        ax.plot(xc[ix], yc[iy], ls='none', marker='h', color=c)
 
 
 def pick_central_gids(circ, base_gids, N):
@@ -42,7 +75,8 @@ def pick_central_gids(circ, base_gids, N):
     return gids, out_loc
 
 
-def main(fn_feather, fn_circ, n_smpl, pick='center', **kwargs):
+def main(fn_feather, fn_circ, n_smpl, pick='center',
+         include_local=True, **kwargs):
     D = validate.DorsalFlatmap()
     A = validate.ProjectionizerResult(fn_feather, fn_circ)
     fltrs = dict([(k, v) if isinstance(v, list) else (k, [v])
@@ -63,8 +97,13 @@ def main(fn_feather, fn_circ, n_smpl, pick='center', **kwargs):
         valid = numpy.all(numpy.vstack([numpy.in1d(props[k], v)
                                         for k, v in fltrs.items()]), axis=0)
         loc_pre = loc_pre.loc[valid]
+    if include_local:
+        pre_finder = PresynNeuronFinder(A._circ)
+        loc_pre.append(pre_finder.presyn_locations(gid_post))
+
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xticks([]); ax.set_yticks([])
     #[D.draw_region(ax, _reg) for _reg in D._mpr.region_names]
     D.draw_modules(ax, pre_rendered=True)
     proj_post = D.transform_points(loc_post['x'].values, loc_post['y'].values,
