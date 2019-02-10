@@ -1,7 +1,11 @@
 from mcmodels.core.cortical_map import CorticalMap
 from mcmodels.core import VoxelModelCache
 from white_matter.wm_recipe.parcellation import RegionMapper
-import numpy
+import numpy, os
+
+
+im_lims = (0.0, 271.0, 135.0, 0.0)
+im_path = os.path.join(os.getenv('HOME', '.'), 'data/modules.png')
 
 
 class DorsalFlatmap(object):
@@ -128,7 +132,14 @@ class DorsalFlatmap(object):
             out_coords[flt2idx[_flt]] = self._depth[i, j]
         return out_coords
 
-    def draw_modules(self, ax, color='black'):
+    def __draw_module_img(self, ax):
+        from scipy.misc import imread
+        img = imread(im_path)
+        ax.imshow(img, extent=im_lims)
+
+    def draw_modules(self, ax, color='black', pre_rendered=False):
+        if pre_rendered:
+            self.__draw_module_img(ax)
         for mdl in self._mpr.module_names:
             ax.contour(self.make_2d_mask(self._mpr.module2regions(mdl)),
                        levels=[0.5], colors=[color], linewidths=1.5)
