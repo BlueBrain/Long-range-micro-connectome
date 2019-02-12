@@ -9,24 +9,9 @@ class ProjectionWriter(object):
         self.mapper = mapper
         self.syn_types = syn_types
 
-    '''def iterate_per_module(self, reg_fr, source_name, hemi):
-        row = self.proj_str(src_type=source_name, hemi=hemi, measurement='connection density')[self.mpr.region2idx(reg_fr)]
-        for tgt_module in self.mpr.module_names:
-            base_name = self.namer.half_projection(reg_fr, source_name, tgt_module)
-            reg_tgts = self.mpr.module2regions(tgt_module)
-            val_tgts = row[self.mpr.module2idx(tgt_module)]
-            is_valid = numpy.array([_v > 0 and ((_r != reg_fr) or hemi == 'contra')
-                                    for _r, _v in zip(reg_tgts, val_tgts)])
-            if not numpy.any(is_valid):
-                continue
-            reg_tgts = [self.namer.comb_pop(_r, 'ALL_LAYERS') for
-                        _r, _l in zip(reg_tgts, is_valid) if _l]
-            val_tgts = val_tgts[is_valid]
-            l_prof = self.profile_mixer.max_module(source_name, self.mpr.region2module(reg_fr), tgt_module) + 1
-            yield base_name, reg_tgts, val_tgts, l_prof'''
-
     def iterate_per_region(self, reg_fr, source_name, hemi):
-        row = self.proj_str(src_type=source_name, hemi=hemi, measurement='connection density')[self.mpr.region2idx(reg_fr)]
+        row = self.proj_str(src_type=source_name, hemi=hemi,
+                            measurement='connection density')[self.mpr.region2idx(reg_fr)]
         for tgt_region in self.mpr.region_names:
             base_name = self.namer.half_projection(reg_fr, source_name, tgt_region)
             val_tgt = row[self.mpr.region2idx(tgt_region)]
@@ -70,12 +55,12 @@ class ProjectionWriter(object):
             fid.write('\n')
 
         def reverse_transformation(pts):
-            '''This transformation, applied to both source and target coordinate systems
+            """This transformation, applied to both source and target coordinate systems
             does not change the actual mapping at all, as it expands both triangles around
             their respective centers equally. The purpose is simply to ensure that the triangles
             more fully cover their respective brain regions. This way, we know that locations
             outside the triangle in the target region are not covered by the mapping and no
-            synapses should be placed there.'''
+            synapses should be placed there."""
             mn_p = numpy.mean(pts)
             return tuple([mn_p + (4.0 / 3.0) * (_p - mn_p)
                           for _p in pts])

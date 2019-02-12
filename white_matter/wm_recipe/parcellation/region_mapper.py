@@ -28,7 +28,7 @@ class RegionMapper(object):
 
     def idx2module(self, idx):
         for k, v in self.module_idx.items():
-            if v[0] <= idx and v[1] > idx:
+            if v[0] <= idx < v[1]:
                 return k
         return 'NONE'
 
@@ -45,5 +45,5 @@ class RegionMapper(object):
         return idx
 
     def module2regions(self, module):
-        idx = idx = self.module2idx(module)
+        idx = self.module2idx(module)
         return [self.region_names[i] for i in idx]

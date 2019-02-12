@@ -35,6 +35,7 @@ class BarycentricCoordinates(object):
 
 class BarycentricColors(BarycentricCoordinates):
 
+    # noinspection PyDefaultArgument
     def __init__(self, x, y, red=[1, 0, 0], green=[0, 1, 0], blue=[0, 0, 1]):
         super(BarycentricColors, self).__init__(x, y)
         self._cols = numpy.matrix(numpy.vstack([red, green, blue]).transpose())
@@ -65,6 +66,7 @@ class BarycentricColors(BarycentricCoordinates):
             out_img[~mask, :] = 0
         return out_img
 
+    # noinspection PyTypeChecker
     def show_img(self, mask, zoom=True, sz_x=8, show_poles=True, convolve_var=None):
         nz = numpy.nonzero(mask)
         out_img = self.img(mask, convolve_var=convolve_var)
@@ -72,6 +74,9 @@ class BarycentricColors(BarycentricCoordinates):
             y1, y2 = nz[0].min(), nz[0].max() + 1
             x1, x2 = nz[1].min(), nz[1].max() + 1
             out_img = out_img[y1:y2, x1:x2, :]
+        else:
+            x1 = 0; x2 = out_img.shape[1]
+            y1 = 0; y2 = out_img.shape[0]
         from matplotlib import pyplot as plt
         sz_y = sz_x * (y2 - y1) / (x2 - x1)
         fig = plt.figure(figsize=(sz_x, sz_y))

@@ -5,7 +5,6 @@ from barycentric import BarycentricCoordinates
 def contract_min(x, y, xy, target_d=0.075):
     from scipy.spatial import distance_matrix
     mn = xy.mean(axis=0)
-    #mn = numpy.array([x.mean(), y.mean()])
     counter = 0
     bary = BarycentricCoordinates(x, y).cart2bary(xy[:, 0], xy[:, 1])
     tgts = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -89,7 +88,7 @@ def contract(x_in, y_in, xy, info_log):
         x_in = cog[0] + fac * (x_in - cog[0])
         y_in = cog[1] + fac * (y_in - cog[1])'''
 
-    nsteps = 0;
+    nsteps = 0
     maxsteps = 1000
     info_log.info("\tContracting individual sides")
     while nsteps < maxsteps:
@@ -109,32 +108,3 @@ def contract(x_in, y_in, xy, info_log):
     x_in, y_in = expand(x_in, y_in, xy)
     final = BarycentricCoordinates(x_in, y_in).area()
     return x_in, y_in, (numpy.sqrt(original / final) - 1) * final_D * 0.5
-
-
-def fail_contract(x_in, y_in, xy, expected_ratios, info_log):
-    from scipy.spatial.distance import pdist
-    cog = xy.mean(axis=0)
-    original = BarycentricCoordinates(x_in, y_in).area()
-
-    dx, dy = numpy.max(xy, axis=0) - numpy.min(xy, axis=0)
-    bound_D = numpy.sqrt(dx ** 2 + dy ** 2)
-    final_D = numpy.sqrt(len(xy) / numpy.pi)
-
-    info_log.info("\tFirst contraction step")
-    D = _D(x_in, y_in, cog)
-    fac = final_D / D.min()
-    if fac < 1.0:
-        x_in = cog[0] + fac * (x_in - cog[0])
-        y_in = cog[1] + fac * (y_in - cog[1])
-
-    barycenter = numpy.array([x_in.mean(), y_in.mean()])
-    D = _D(x_in, y_in, cog)
-    j = numpy.argmin(expected_ratios)
-    tgt_dists = D[j] * expected_ratios / expected_ratios[j]
-    factors = tgt_dists / D
-    j = numpy.argmin(expected_ratios)
-    import pdb;pdb.set_trace()
-    for i, _f in enumerate(factors):
-        if i != j:
-            x_in, y_in = _of_point(x_in, y_in, i, cog, _f)
-    return x_in, y_in, 0.25

@@ -51,7 +51,6 @@ class ModuleProfiles(SourceProfiles):
              + ['%s_inter' % k for k in mpr.module_names]
 
 
-
 class ProfileMixer(object):
     def __init__(self, proj_strength, cfg_file=None):
         if cfg_file is None:
@@ -66,11 +65,11 @@ class ProfileMixer(object):
         self.modules = self.mpr.module_idx
         self.pw_strength = proj_strength
         self._hierarchy = ['ACAd', 'AIv', 'TEa', 'ACAv', 'MOs', 'VISC', 'ORBvl',
-                          'SSp-un', 'VISa', 'VISpor', 'VISam', 'AUDpo', 'VISpm',
-                          'FRP', 'ORBl', 'PL', 'RSPagl', 'AId', 'ORBm', 'VISal',
-                          'VISrl', 'ILA', 'SSp-tr', 'RSPd', 'MOp', 'VISli', 'VISl',
-                          'RSPv', 'SSs', 'SSp-bfd', 'VISpl', 'SSp-m', 'SSp-ul', 'AIp',
-                          'AUDd', 'SSp-ll', 'SSp-n', 'AUDp', 'VISp'] #Harris et al, Fig8e
+                           'SSp-un', 'VISa', 'VISpor', 'VISam', 'AUDpo', 'VISpm',
+                           'FRP', 'ORBl', 'PL', 'RSPagl', 'AId', 'ORBm', 'VISal',
+                           'VISrl', 'ILA', 'SSp-tr', 'RSPd', 'MOp', 'VISli', 'VISl',
+                           'RSPv', 'SSs', 'SSp-bfd', 'VISpl', 'SSp-m', 'SSp-ul', 'AIp',
+                           'AUDd', 'SSp-ll', 'SSp-n', 'AUDp', 'VISp']  #TODO: Read from config
         self._m_hierarchy = ['prefrontal', 'anterolateral', 'medial', 'visual',
                              'temporal', 'somatomotor']
         '''No hierarchy reported for 4 regions. We put them in the middle (index 20).'''
@@ -104,7 +103,6 @@ class ProfileMixer(object):
             mod = mod_fr + '_intra'
         else:
             mod = mod_fr + '_inter'
-        #return self.profiles_m.patterns[mod] * self.profiles_s.patterns[source]
         adjust = self.profiles_m.patterns[mod] / self.predict_mix_from_sources(mod_fr, mod_to)
         return self.profiles_s.patterns[source] * adjust
 

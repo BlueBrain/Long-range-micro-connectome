@@ -86,7 +86,7 @@ def main(cfg, obj, src):
                 N = numpy.all(~numpy.isnan(obj._exp_cols), axis=1).sum()
                 tgt_grp.create_dataset('n_experiments', data=[N])
             h5.flush()
-        except Exception as exc:
+        except Exception:
             print "Trouble with %s/%s" % (str(src), str(tgt))
             continue
     h5.close()

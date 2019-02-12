@@ -2,7 +2,8 @@ import os
 import mcmodels
 import numpy
 
-q_str = "http://connectivity.brain-map.org/projection/csv?criteria=service::mouse_connectivity_target_spatial[injection_structures$eq%d][seed_point$eq%d,%d,%d][primary_structure_only$eq%s]"#[transgenic_lines$eq0]"
+# noinspection PyPep8
+q_str = "http://connectivity.brain-map.org/projection/csv?criteria=service::mouse_connectivity_target_spatial[injection_structures$eq%d][seed_point$eq%d,%d,%d][primary_structure_only$eq%s]"  # [transgenic_lines$eq0]"
 
 
 class StreamlineDownloader(object):
@@ -28,6 +29,7 @@ class StreamlineDownloader(object):
             os.makedirs(tmp_dir)
         self._sl_cache = tmp_dir
 
+    # noinspection PyUnresolvedReferences
     def __region2center__(self, region_acronym, hemisphere='right'):
         idxx = self._tree.get_structures_by_acronym([region_acronym])[0]['id']
         mask = numpy.in1d(self._vol, self._tree.descendant_ids([idxx])[0]).reshape(self._vol.shape)
@@ -81,7 +83,8 @@ class StreamlineDownloader(object):
         """Build a url to query the Allen servers for a set of streamlines from / to specified regions.
         INPUT:
         target_spec: Specify the approximate endpoint of streamlines. Either a string naming a brain region (VISp, etc.)
-        or a list of three coordinates. If a string is specified the center of that region in the specified hemisphere is used.
+        or a list of three coordinates. If a string is specified the center of that region in the specified hemisphere
+        is used.
         target_hemisphere: Only if target_spec is a string.
         source_spec: Either a string naming a brain region (SSp-ll, etc.) or a brain region id.
         primary_only: If true then the primary injection structure must be according to source spec.
@@ -99,7 +102,8 @@ class StreamlineDownloader(object):
         """Query Allen servers for streamlines from / to specified regions.
         INPUT:
         target_spec: Specify the approximate endpoint of streamlines. Either a string naming a brain region (VISp, etc.)
-        or a list of three coordinates. If a string is specified the center of that region in the specified hemisphere is used.
+        or a list of three coordinates. If a string is specified the center of that region in the specified hemisphere
+        is used.
         target_hemisphere: Only if target_spec is a string.
         source_spec: Either a string naming a brain region (SSp-ll, etc.) or a brain region id.
         primary_only: If true then the primary injection structure must be according to source spec.
@@ -122,7 +126,8 @@ class StreamlineDownloader(object):
         """Look up lengths of streamlines from / to specified regions.
         INPUT:
         target_spec: Specify the approximate endpoint of streamlines. Either a string naming a brain region (VISp, etc.)
-        or a list of three coordinates. If a string is specified the center of that region in the specified hemisphere is used.
+        or a list of three coordinates. If a string is specified the center of that region in the specified hemisphere
+        is used.
         target_hemisphere: Only if target_spec is a string.
         source_spec: Either a string naming a brain region (SSp-ll, etc.) or a brain region id.
         primary_only: If true then the primary injection structure must be according to source spec.

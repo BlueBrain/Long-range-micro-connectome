@@ -1,6 +1,7 @@
 import numpy
 from white_matter.utils.sample_from_image import ImgSampler
 
+
 def read_config(fn):
     import json, os
     with open(fn, 'r') as fid:

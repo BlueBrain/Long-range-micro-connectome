@@ -2,6 +2,7 @@ import scipy.misc
 import numpy
 
 
+# noinspection PyDefaultArgument
 class ImgSampler(object):
     def __init__(self, path, fr=None, to=None, cbar=None, cbar_kwargs={}):
         self.img_raw = scipy.misc.imread(path)

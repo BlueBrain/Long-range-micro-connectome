@@ -40,7 +40,7 @@ class ProjectionStrength(object):
     def _call_master(self):
         import h5py, os
         from .master_proj_mats import master_proj_mats
-        res = master_proj_mats(self.cfg)
+        res = master_proj_mats(self.cfg, self.mpr)
         if os.path.exists(self.cfg["h5_cache"]):
             h5 = h5py.File(self.cfg["h5_cache"], 'r+')
         else:

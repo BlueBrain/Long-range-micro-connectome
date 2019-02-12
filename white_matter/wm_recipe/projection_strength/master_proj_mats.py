@@ -9,7 +9,7 @@ def make_voxel_model(cfg):
     cache = mcmodels.core.VoxelModelCache(manifest_file=cfg["cache_manifest"])
     voxel_array, source_mask, target_mask = cache.get_voxel_connectivity_array()
     return voxel_array, source_mask, target_mask,\
-           cache.get_structure_tree(), cache.get_annotation_volume()[0]
+        cache.get_structure_tree(), cache.get_annotation_volume()[0]
 
 
 def get_layer_specific_ids(tree, vol, mpr):
@@ -35,8 +35,8 @@ def make_regionalized_model(voxel_array, source_mask, target_mask, tree, vol, he
 
 
 def layer_specific_matrix(mdl, tree, mpr, connection_type, layers):
-    '''We ended up not using this. Injections are too course-grained to yield usable results.
-    Still, this is how it would have been done'''
+    """We ended up not using this. Injections are too course-grained to yield usable results.
+    Still, this is how it would have been done"""
     A = mdl.__getattribute__(connection_type)
     sources = tree.get_structures_by_id(mdl.source_regions)
     source_names = [_s['acronym'] for _s in sources]

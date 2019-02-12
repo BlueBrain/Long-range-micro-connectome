@@ -1,11 +1,8 @@
 import numpy
-from white_matter.wm_recipe.parcellation import RegionMapper
 from white_matter.utils.data_from_config import ConfiguredDataSource
 '''The strategy to combine a wild type connection matrix with digitized 
 data for projection-class-specific projection strength to derive dense
 projection-class-specific matrices'''
-
-#mpr = RegionMapper()
 
 
 def deactivate_where_volume_is_zero(mats, vol_dict, mpr):
@@ -62,7 +59,8 @@ def per_layer_proj_mats(cfg, mpr, M_i, M_c, scale=True, vol_dict=None):
     m_contra.condense(per_layer_mdl_idx_fr, per_layer_mdl_idx_to, func=numpy.nansum)
     ss_ipsi = m_ipsi.patterns
     ss_contra = m_contra.patterns
-    '''NORMALIZE BY THE SUM OF ALL LAYER SPECIFIC MATRICES. ASSUMPTION: TOTAL STRENGTH IS SUM OF PATHWAYS FROM INDIVIDUAL LAYERS'''
+    '''NORMALIZE BY THE SUM OF ALL LAYER SPECIFIC MATRICES. ASSUMPTION:
+    TOTAL STRENGTH IS SUM OF PATHWAYS FROM INDIVIDUAL LAYERS'''
     nrmlz_ipsi = numpy.dstack([ss_ipsi[k] for k in mpr.source_names]).sum(axis=2)
     nrmlz_contra = numpy.dstack([ss_contra[k] for k in mpr.source_names]).sum(axis=2)
     I = dictmap(ss_ipsi, lambda x: x / nrmlz_ipsi)
@@ -73,10 +71,11 @@ def per_layer_proj_mats(cfg, mpr, M_i, M_c, scale=True, vol_dict=None):
         for mdl_s, row in zip(mpr.module_names, scales):
             out_row = []
             for mdl_t, v in zip(mpr.module_names, row):
-                out_row.append( v * M[:, mpr.module2idx(mdl_t)][mpr.module2idx(mdl_s)])
+                out_row.append(v * M[:, mpr.module2idx(mdl_t)][mpr.module2idx(mdl_s)])
             ret.append(numpy.hstack(out_row))
         return numpy.vstack(ret)
-    '''FINAL RESULT IS THEN TAKING THE MODULE SPECIFIC SUBMATRICES FROM THE MAIN MATRIX, SCALED BY FRACTIONS CALCULATED FOR EACH MODULE PATHWAY'''
+    '''FINAL RESULT IS THEN TAKING THE MODULE SPECIFIC SUBMATRICES FROM THE MAIN MATRIX,
+    SCALED BY FRACTIONS CALCULATED FOR EACH MODULE PATHWAY'''
 
     FINAL = dict([((('hemi', 'ipsi'), ('src_type', k)), scaled_submats(M_i, I[k])) for k in mpr.source_names]
                  + [((('hemi', 'contra'), ('src_type', k)), scaled_submats(M_c, C[k])) for k in mpr.source_names])
@@ -86,7 +85,8 @@ def per_layer_proj_mats(cfg, mpr, M_i, M_c, scale=True, vol_dict=None):
     '''APPLY CUTOFF TO REMOVE VERY WEAK PROJECTIONS. CUTOFF SELECTED SUCH THAT 5% OF THE TOTAL DENSITY IS LOST'''
     all_str_vals = numpy.hstack([x.flatten() for x in FINAL.values()])
     all_str_vals.sort()
-    cutoff = all_str_vals[numpy.nonzero((numpy.cumsum(all_str_vals) / numpy.nansum(all_str_vals)) > frac_lost_in_thresh)[0][0]]
+    cutoff = all_str_vals[numpy.nonzero((numpy.cumsum(all_str_vals) /
+                                         numpy.nansum(all_str_vals)) > frac_lost_in_thresh)[0][0]]
 
     def apply_cutoff(X):
         X[X < cutoff] = 0.0

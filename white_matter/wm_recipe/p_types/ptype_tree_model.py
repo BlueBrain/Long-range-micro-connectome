@@ -44,6 +44,7 @@ def make_tree(rr, P):
         return [[p[i] for i in G.nodes[g]['contents']]
                 for g in lst]
 
+    # noinspection PyUnresolvedReferences
     def merge_list(lst, p, G):
         groups = group_contents(lst, p, G)
         merge_groups = numpy.arange(len(groups))
@@ -82,6 +83,7 @@ def make_tree(rr, P):
     return G
 
 
+# noinspection PyTypeChecker,PyDefaultArgument
 def layout_tree(G, root, pos_dict=None, x=0, y=[0, 10], length=['length']):
     def make_splt(suc):
         L = [len(G.nodes[_s]['contents']) for _s in suc]
@@ -101,6 +103,7 @@ def layout_tree(G, root, pos_dict=None, x=0, y=[0, 10], length=['length']):
     return pos_dict
 
 
+# noinspection PyTypeChecker,PyDefaultArgument
 def layout_radial_tree(G, root, pos_dict=None, l=0, angle=[0, 2*numpy.pi], length=['length'], bidirectional=True):
     def make_splt(suc):
         L = [len(G.nodes[_s]['contents']) for _s in suc]
@@ -134,9 +137,9 @@ def get_root(T):
     return sorted(T.nodes)[-1]
 
 
-def get_out_edges(T, node, type='down'):
+def get_out_edges(T, node, edge_type='down'):
     return [_e for _e in T.out_edges(node)
-            if T.edges[_e]['type'] == type]
+            if T.edges[_e]['type'] == edge_type]
 
 
 def make_bidirectional(T):
@@ -206,14 +209,10 @@ def fit_and_merge_pair(T, pair, W, ND, L):
     x_in = ND[:L, pair[0]].mean() - ND[:L, pair[1]].mean()
     a1 = ND[pair[0], pair[1]]
     a2 = ND[pair[1], pair[0]]
-    #a1 = n1['w_out'][n2['contents']].mean()
-    #a2 = n2['w_out'][n1['contents']].mean()
     b = numpy.array([x_out, x_in, a1, a2])
-    #print N, b
     ir, jr, ri, rj = numpy.linalg.lstsq(N, b, rcond=None)[0]
 
     def _updater(e, val):
-        #print e.get('log_p', numpy.NaN), val
         val = numpy.maximum(val, 0.0)
         e['log_p'] = numpy.nanmean([e.get('log_p', numpy.NaN), val])
     _updater(T.edges[(pair[0], r)], -ir)
@@ -263,7 +262,7 @@ class TreeInnervationModel(object):
         else:
             self._val_mask = val_mask
 
-
+    # noinspection PyDefaultArgument
     def grow_from(self, idx, coming_from=[], valids=None):
         if isinstance(idx, str) or isinstance(idx, unicode):
             idx = self.mpr.region2idx(idx)
@@ -276,7 +275,6 @@ class TreeInnervationModel(object):
                 return []
         edges = [e for e in self.T.out_edges(idx)
                  if (e[1], e[0]) not in coming_from]
-        #print coming_from, edges
         ret = []
         for e in edges:
             p = self.p_func(self.T.edges[e]['log_p'])
@@ -292,7 +290,7 @@ class TreeInnervationModel(object):
         p2 = nx.algorithms.shortest_path(T, axon_from, r2, weight=weight)
         idxx = numpy.nonzero([_p in p2 for _p in p1])[0][-1]
         dl = nx.algorithms.shortest_path_length(T, p1[idxx], r2, weight=weight) \
-             - nx.algorithms.shortest_path_length(T, axon_from, r2, weight=weight)
+            - nx.algorithms.shortest_path_length(T, axon_from, r2, weight=weight)
         return self.p_func(dl)
 
     def interaction_mat(self, axon_from, no_redundant=False):
@@ -353,11 +351,11 @@ class TreeInnervationModel(object):
 
     @classmethod
     def from_con_mats(cls, mat_topology, mat_weights, optimize=False, **kwargs):
-        mat_topology[numpy.isnan(mat_topology)] = 0.0 #TODO: Instead mask out
+        mat_topology[numpy.isnan(mat_topology)] = 0.0 # TODO: Instead mask out
         mat_weights[numpy.isnan(mat_weights)] = 0.0
         T, pos_dict = con_mat2cluster_tree(mat_topology, radial=True)
         epsilon = mat_weights[mat_weights > 0].min()
-        W, ND = fit_tree_to_mat(T, mat_weights + epsilon)
+        fit_tree_to_mat(T, mat_weights + epsilon)
         if optimize:
             for n in get_leaves(T):
                 for e in T.out_edges(n):
@@ -402,7 +400,7 @@ class TreeInnervationModelCollection(object):
 
     @classmethod
     def from_config_file(cls, cfg_file=None):
-        import json, os
+        import os
         from white_matter.utils.paths_in_config import path_local_to_path
         from white_matter.utils.data_from_config import read_config
         from white_matter.wm_recipe.parcellation import RegionMapper
@@ -423,7 +421,7 @@ class TreeInnervationModelCollection(object):
         return cls(mdl_dict)
 
 
-#VALIDATION OF TREE MODEL
+# VALIDATION OF TREE MODEL
 def _naive_model(val_data, smpls=1000):
     N = val_data.shape[1]
     mn_data = val_data.mean(axis=0)
@@ -494,7 +492,7 @@ def validate_tree_model(tree_mdl, val_idx, val_data, smpls=10000, dist='citybloc
     D_model = distance_func(grown, dist=dist)
     D_naive = distance_func(_naive_model(val_data), dist=dist)
     plot_hamming_distances(D_data, D_model, D_naive)
-    #Distances are strongly non-independent samples. Need to use the ORIGINAL number of samples for the "N" kwarg.
+    # Distances are strongly non-independent samples. Need to use the ORIGINAL number of samples for the "N" kwarg.
     return kstest(to_rvs(D_data), to_cdf(D_model), N=val_data.shape[0]),\
            kstest(to_rvs(D_data), to_cdf(D_naive), N=val_data.shape[0])
 

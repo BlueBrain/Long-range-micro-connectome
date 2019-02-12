@@ -1,21 +1,13 @@
 import numpy
 
+
 class PTypeWriter(object):
     def __init__(self, mpr, namer, p_type_mdls, proj_str, interaction_thresh=2.5):
         self.p_type_mdls = p_type_mdls
         self.mpr = mpr
         self.namer = namer
         self.proj_str = proj_str
-        #self.func = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0)
         self.thresh = interaction_thresh
-
-    '''def src_mat(self, src):
-        measurement = self.p_type_mdls.cfg["mat_predict_innervation"]
-        predict_fun = lambda x: numpy.minimum(numpy.sqrt(x) / 4, 1.0) #TODO: read from config
-        M = numpy.hstack([self.proj_str(src_type=src, hemi=hemi,
-                                        measurement=measurement)
-                          for hemi in ['ipsi', 'contra']])
-        return predict_fun(M)'''
 
     @staticmethod
     def _nums2str(v, prefix='\t\t'):

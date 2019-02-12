@@ -7,6 +7,7 @@ logging.basicConfig(level=1)
 info_log = logging.getLogger(__file__)
 
 
+# noinspection PyMissingConstructor
 class BarycentricMaskMapper(BarycentricColors):
 
     def __init__(self, mask, interactive=True, contract=0.75, **kwargs):
@@ -54,8 +55,8 @@ class BarycentricMaskMapper(BarycentricColors):
                 ax.plot(x, y, 'ko')
             if len(self.__tmp_x) >= 3:
                 super(BarycentricMaskMapper, self).__init__(numpy.array(self.__tmp_x),
-                                                             numpy.array(self.__tmp_y),
-                                                             **self.__kwargs)
+                                                            numpy.array(self.__tmp_y),
+                                                            **self.__kwargs)
                 plt.close(fig)
                 self.show_img()
 
@@ -67,6 +68,7 @@ class BarycentricMaskMapper(BarycentricColors):
         return super(BarycentricMaskMapper, self).show_img(mask, **kwargs)
 
 
+# noinspection PyUnresolvedReferences,PyDefaultArgument
 class GeneralProjectionMapper(object):
 
     def __init__(self, annotation_volume, mapper, structure_tree):
@@ -79,7 +81,7 @@ class GeneralProjectionMapper(object):
         self._used_hemisphere = 2
 
     def _three_d2flat_idx(self, idx):
-        return idx[:, 0] * numpy.prod(self._mapper.REFERENCE_SHAPE[1:]) +\
+        return idx[:, 0] * numpy.prod(self._mapper.REFERENCE_SHAPE[1:]) + \
                idx[:, 1] * self._mapper.REFERENCE_SHAPE[-1] + idx[:, 2]
 
     def _region_ids(self, regions, resolve_to_leaf=False):
@@ -87,6 +89,7 @@ class GeneralProjectionMapper(object):
             regions = [regions]
         r_struc = self._tree.get_structures_by_acronym(regions)
         r_ids = numpy.array([_x['id'] for _x in r_struc])
+
         def resolver(r_ids):
             rslvd = [resolver(_chldr) if len(_chldr) else _base
                      for _base, _chldr in
@@ -172,7 +175,7 @@ class GeneralProjectionMapper(object):
         if normalize is not None:
             img_sum = numpy.nansum(IMG, axis=2)
             if per_pixel:
-                IMG = normalize * IMG / img_sum.reshape(img_sum.shape + (1, ))
+                IMG = normalize * IMG / img_sum.reshape(img_sum.shape + (1,))
             else:
                 fac = normalize * (img_sum > 0).sum() / img_sum.sum()
                 IMG *= fac
@@ -218,7 +221,8 @@ class GeneralProjectionMapper(object):
             plt.axis('off')
         ax.contour(self._mask2d, **kwargs)
 
-    def _imshow(self, IMG, ax=None):
+    @staticmethod
+    def _imshow(IMG, ax=None):
         from matplotlib import pyplot as plt
         if ax is None:
             ax = plt.figure(figsize=(16, 8)).add_axes([0, 0, 1, 1])
@@ -259,8 +263,8 @@ class GeneralProjectionMapper(object):
             cos_ang = [normalize(A[1] - A[0]).dot(normalize(A[2] - A[0])),
                        normalize(A[0] - A[1]).dot(normalize(A[2] - A[1])),
                        normalize(A[0] - A[2]).dot(normalize(A[1] - A[2]))]
-            return mul_angle * (norm(2.95, 0.218).cdf(numpy.arccos(cos_ang).max())\
-                   + 1 - norm(0.174, 0.2).cdf(numpy.arccos(cos_ang).min())) + 1
+            return mul_angle * (norm(2.95, 0.218).cdf(numpy.arccos(cos_ang).max())
+                                + 1 - norm(0.174, 0.2).cdf(numpy.arccos(cos_ang).min())) + 1
 
         def _overlap(cols):
             diff = numpy.max(cols, axis=0) - numpy.min(cols, axis=0)
@@ -284,8 +288,7 @@ class GeneralProjectionMapper(object):
         final_error = numpy.abs(sol[2]['fvec']).mean()
         info_log.info("\tMean final error is %f" % final_error)
         from white_matter.wm_recipe.projection_mapping.contract import estimate_mapping_var
-        #x_out, y_out, map_var = contract(sol[0][:3], sol[0][3:], xy, #numpy.sqrt(1/numpy.mean(abc, axis=0)),
-        #                                info_log)
+
         x_out, y_out = contract_min(sol[0][:3], sol[0][3:], xy)
         col_sys = BarycentricConstrainedColors(x_out, y_out)
         map_var = estimate_mapping_var(abc, col_sys.col(xy[:, 0], xy[:, 1]))
@@ -301,6 +304,7 @@ class GeneralProjectionMapper(object):
         xy = numpy.vstack([nz[1], nz[0]]).transpose()
         return self._fit_func(abc, xy, **kwargs)
 
+    # noinspection PyUnboundLocalVariable
     def make_target_region_coordinate_system(self, tgt, target_args={}, pp_use={},
                                              pp_display={}, fit_args={},
                                              src_args={}, draw=True):
@@ -358,6 +362,7 @@ class VoxelArrayBaryMapper(GeneralProjectionMapper):
     def proj_for_voxel_2d(self, idx):
         return self._mapper.transform(self.proj_for_voxel_3d(idx), agg_func=numpy.nanmean)
 
+    # noinspection PyUnusedLocal
     def cols_and_paths(self, mask2d, bary, shuffle=False):
         nz2d = numpy.nonzero(mask2d)
         cols = bary.col(nz2d[1], nz2d[0])
@@ -399,7 +404,9 @@ class VoxelArrayBaryMapper(GeneralProjectionMapper):
                 self._sampled.append((_pt[0], _pt[1], _col))
 
         if normalize:
-            out_R /= out_count; out_G /= out_count; out_B /= out_count
+            out_R /= out_count
+            out_G /= out_count
+            out_B /= out_count
         return out_R, out_G, out_B
 
     def draw_projection(self, *args, **kwargs):
@@ -447,9 +454,9 @@ class VoxelNodeBaryMapper(GeneralProjectionMapper):
     def assign_colors(self, exp_locs, shuffle=False):
         out_cols = numpy.vstack([self._bary.col(_p[1], _p[0]) for _p in exp_locs])
         if self._used_hemisphere == 2:
-            out_cols[exp_locs[:, 1] < self._mask2d.shape[1]/2, :] = numpy.NaN
+            out_cols[exp_locs[:, 1] < self._mask2d.shape[1] / 2, :] = numpy.NaN
         else:
-            out_cols[exp_locs[:, 1] > self._mask2d.shape[1]/2, :] = numpy.NaN
+            out_cols[exp_locs[:, 1] > self._mask2d.shape[1] / 2, :] = numpy.NaN
         if shuffle:
             for i in range(len(out_cols)):
                 out_cols[i, :] = numpy.random.permutation(out_cols[i, :])
@@ -457,7 +464,7 @@ class VoxelNodeBaryMapper(GeneralProjectionMapper):
         return out_cols
 
     def _summation(self, proj, cols, normalize_bias=True,
-                  normalize_pixels=True):
+                   normalize_pixels=True):
         import progressbar
         t_shape = self._mapper.REFERENCE_SHAPE
         out_R = numpy.zeros(t_shape, dtype=float)

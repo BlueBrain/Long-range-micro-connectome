@@ -19,7 +19,8 @@ class ProjectionMapper(object):
         self.cfg = read_config(cfg_file)
         if not os.path.exists(self.cfg["h5_fn"]):
             import subprocess, logging
-            logging.getLogger(__file__).warning("Mapping cache does not exist at %s! Creating it now..." % self.cfg["h5_fn"])
+            logging.getLogger(__file__).warning("Mapping cache does not exist at %s! Creating it now..."
+                                                % self.cfg["h5_fn"])
             subprocess.check_call(["write_projection_mapping_cache.py", cfg_file])
             assert os.path.exists(self.cfg["h5_fn"]), "Mapping cache still missing!"
 
