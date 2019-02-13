@@ -5,13 +5,7 @@ def find_scripts():
     scripts = ['bin/write_wm_recipe.py',
                'bin/write_projection_mapping_cache.py',
                'bin/write_ptype_tree_model_cache.py',
-               'bin/write_projection_strength_cache.py',
-               'bin/proj2csc.py',
-               'bin/validation/presynaptic_neuron_locations.py',
-               'bin/validation/presynaptic_synapses_per_connection.py',
-               'bin/validation/pre_post_mapping.py',
-               'bin/validation/vertical_profile.py',
-               'bin/validation/pre_post_mapping_cols.py']
+               'bin/write_projection_strength_cache.py']
     return scripts
 
 
@@ -26,7 +20,7 @@ setup(
     author='Michael Reimann',
     author_email='michael.reimann@epfl.ch',
     description='''Analyze whole-neocortex connectivity in the mouse brain and write a generative recipe''',
-    license='Restricted',
+    license='BSD-3-Clause',
     keywords=('neuroscience',
               'brain',
               'white matter',
@@ -35,7 +29,7 @@ setup(
     url='http://bluebrain.epfl.ch',
     classifiers=['Development Status :: 4 - Beta',
                  'Environment :: Console',
-                 'License :: Proprietary',
+                 'License :: BSD-3-Clause',
                  'Operating System :: POSIX',
                  'Topic :: Utilities',
                  ],
