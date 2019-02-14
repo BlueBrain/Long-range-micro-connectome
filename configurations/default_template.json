@@ -21,6 +21,7 @@
   {
     "layer_profiles": {
       "source": "config",
+      "_comment": "Digitized from Harris et al, Fig. 5",
       "parameters":{
         "patterns":{
           "1": [[2.63901951], [1.65523989], [0.39496008], [0.35151307], [0.35151307]],
@@ -36,6 +37,7 @@
     },
     "frequency_per_module":{
       "source": "config",
+      "_comment": "Digitized from Harris et al, Fig. 8",
       "parameters":{
         "patterns": {"anterolateral_inter": [0.65182879, 0.39782101, 1.94521401, 0.69105058, 1.23548638,
         1.07859922],
@@ -67,6 +69,7 @@
     },
     "frequency_per_source":{
       "source": "config",
+      "_comment": "Digitized from Harris et al, Fig. 5",
       "parameters": {
         "patterns":{"23": [0.97256858, 1.0072188 , 2.18532616, 0.4473028 , 0.82136763,
         0.56621604],
@@ -157,6 +160,7 @@
   {
     "per_projection_class_ipsi":{
       "source": "config",
+      "_comment": "Digitized from Harris et al, Fig. 4",
       "parameters": {
         "patterns": {
           "23": [
@@ -7468,6 +7472,7 @@
     },
     "per_projection_class_contra":{
       "source": "config",
+      "_comment": "Digitized from Harris et al, Fig. 4",
       "parameters": {
         "patterns":{
           "23": [[-1.70759, -0.15316, -100, -100, -2.21392, -3.43924, -0.88734, -100, -2.79114, -1.20127, -2.04177, -1.55570, -1.42405, -1.10000, -100, -2.38608, -100, -100, -100, -100, -1.87975, -1.42911, -0.80633, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -2.37595, -1.53544, -1.47468],
@@ -7642,7 +7647,7 @@
     "threshold_fraction": 0.05,
     "scaling": {"region": "SSp-ll", "value": 0.05534342,
                 "measurement": "connection density"},
-    "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
+    "cache_manifest": "data/connectivity/voxel_model_manifest.json",
     "h5_cache": "cache/strength/projection_matrices.h5"
   },
   "SynapseTypes":
