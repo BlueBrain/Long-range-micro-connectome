@@ -1,29 +1,30 @@
 synapse_types:
+#These are placeholder parameters to be properly filled in in future releases
     - name: type_1
       physiology:
         - phys_parameter: U
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.46
-                - std: 0.26
+                - mean: 0.336
+                - std: 0.25
         - phys_parameter: D
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 671.0
-                  std: 17.0
+                - mean: 600.0
+                  std: 22.0
         - phys_parameter: F
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 17.0
+                - mean: 22.0
                   std: 5.0
         - phys_parameter: gsyn
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.65
+                - mean: 0.72
                   std: 0.44
         - phys_parameter: nrrp
           distribution:
@@ -35,8 +36,8 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.74
-                  std: 0.425
+                - mean: 1.55
+                  std: 0.4
 
     - name: type_2
       physiology:
@@ -44,25 +45,25 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.86
-                - std: 0.09
+                - mean: 0.336
+                - std: 0.25
         - phys_parameter: D
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 671.0
-                  std: 17.0
+                - mean: 600.0
+                  std: 22.0
         - phys_parameter: F
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 17.0
+                - mean: 22.0
                   std: 5.0
         - phys_parameter: gsyn
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.65
+                - mean: 0.72
                   std: 0.44
         - phys_parameter: nrrp
           distribution:
@@ -74,8 +75,8 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.74
-                  std: 0.425
+                - mean: 1.55
+                  std: 0.4
 
     - name: type_3
       physiology:
@@ -83,26 +84,26 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.39
-                - std: 0.03
+                - mean: 0.336
+                - std: 0.25
         - phys_parameter: D
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 671.0
-                  std: 17.0
+                - mean: 600.0
+                  std: 22.0
         - phys_parameter: F
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 17.0
+                - mean: 22.0
                   std: 5.0
         - phys_parameter: gsyn
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.69
-                  std: 0.46
+                - mean: 0.72
+                  std: 0.44
         - phys_parameter: nrrp
           distribution:
             - type: uniform_int
@@ -113,8 +114,8 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.74
-                  std: 0.425
+                - mean: 1.55
+                  std: 0.4
 
     - name: type_4
       physiology:
@@ -122,26 +123,26 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.448
-                - std: 0.106
+                - mean: 0.336
+                - std: 0.25
         - phys_parameter: D
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 446.0
-                  std: 109.0
+                - mean: 600.0
+                  std: 22.0
         - phys_parameter: F
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 40.6
-                  std: 46.0
+                - mean: 22.0
+                  std: 5.0
         - phys_parameter: gsyn
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.62
-                  std: 1.27
+                - mean: 0.72
+                  std: 0.44
         - phys_parameter: nrrp
           distribution:
             - type: uniform_int
@@ -152,8 +153,8 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.74
-                  std: 0.425
+                - mean: 1.55
+                  std: 0.4
 
     - name: type_5
       physiology:
@@ -161,26 +162,26 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 0.37
-                - std: 0.11
+                - mean: 0.336
+                - std: 0.25
         - phys_parameter: D
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 280.0
-                  std: 90.0
+                - mean: 600.0
+                  std: 22.0
         - phys_parameter: F
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 90.0
-                  std: 80.0
+                - mean: 22.0
+                  std: 5.0
         - phys_parameter: gsyn
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.4
-                  std: 1.0
+                - mean: 0.72
+                  std: 0.44
         - phys_parameter: nrrp
           distribution:
             - type: uniform_int
@@ -191,6 +192,5 @@ synapse_types:
           distribution:
             - type: truncated_gaussian
               dist_parameters:
-                - mean: 1.74
-                  std: 0.425
-
+                - mean: 1.55
+                  std: 0.4
