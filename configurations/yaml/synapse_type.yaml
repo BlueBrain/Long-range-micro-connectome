@@ -1,196 +1,196 @@
 synapse_types:
 #These are placeholder parameters to be properly filled in in future releases
-    - name: type_1
-      physiology:
-        - phys_parameter: U
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.336
-                - std: 0.25
-        - phys_parameter: D
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 600.0
-                  std: 22.0
-        - phys_parameter: F
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 22.0
-                  std: 5.0
-        - phys_parameter: gsyn
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.72
-                  std: 0.44
-        - phys_parameter: nrrp
-          distribution:
-            - type: uniform_int
-              dist_parameters:
-                - min: 1
-                  max: 4
-        - phys_parameter: dtc
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 1.55
-                  std: 0.4
+  type_1:
+    physiology:
+      U:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.336
+            std: 0.25
+      D:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 600.0
+            std: 22.0
+      F:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 22.0
+            std: 5.0
+      gsyn:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.72
+            std: 0.44
+      nrrp:
+        distribution:
+          name: uniform_int
+          params:
+            min: 1
+            max: 4
+      dtc:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 1.55
+            std: 0.4
 
-    - name: type_2
-      physiology:
-        - phys_parameter: U
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.336
-                - std: 0.25
-        - phys_parameter: D
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 600.0
-                  std: 22.0
-        - phys_parameter: F
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 22.0
-                  std: 5.0
-        - phys_parameter: gsyn
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.72
-                  std: 0.44
-        - phys_parameter: nrrp
-          distribution:
-            - type: uniform_int
-              dist_parameters:
-                - min: 1
-                  max: 4
-        - phys_parameter: dtc
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 1.55
-                  std: 0.4
+  type_2:
+    physiology:
+      U:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.336
+            std: 0.25
+      D:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 600.0
+            std: 22.0
+      F:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 22.0
+            std: 5.0
+      gsyn:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.72
+            std: 0.44
+      nrrp:
+        distribution:
+          name: uniform_int
+          params:
+            min: 1
+            max: 4
+      dtc:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 1.55
+            std: 0.4
 
-    - name: type_3
-      physiology:
-        - phys_parameter: U
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.336
-                - std: 0.25
-        - phys_parameter: D
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 600.0
-                  std: 22.0
-        - phys_parameter: F
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 22.0
-                  std: 5.0
-        - phys_parameter: gsyn
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.72
-                  std: 0.44
-        - phys_parameter: nrrp
-          distribution:
-            - type: uniform_int
-              dist_parameters:
-                - min: 1
-                  max: 4
-        - phys_parameter: dtc
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 1.55
-                  std: 0.4
+  type_3:
+    physiology:
+      U:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.336
+            std: 0.25
+      D:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 600.0
+            std: 22.0
+      F:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 22.0
+            std: 5.0
+      gsyn:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.72
+            std: 0.44
+      nrrp:
+        distribution:
+          name: uniform_int
+          params:
+            min: 1
+            max: 4
+      dtc:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 1.55
+            std: 0.4
 
-    - name: type_4
-      physiology:
-        - phys_parameter: U
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.336
-                - std: 0.25
-        - phys_parameter: D
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 600.0
-                  std: 22.0
-        - phys_parameter: F
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 22.0
-                  std: 5.0
-        - phys_parameter: gsyn
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.72
-                  std: 0.44
-        - phys_parameter: nrrp
-          distribution:
-            - type: uniform_int
-              dist_parameters:
-                - min: 1
-                  max: 4
-        - phys_parameter: dtc
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 1.55
-                  std: 0.4
+  type_4:
+    physiology:
+      U:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.336
+            std: 0.25
+      D:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 600.0
+            std: 22.0
+      F:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 22.0
+            std: 5.0
+      gsyn:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.72
+            std: 0.44
+      nrrp:
+        distribution:
+          name: uniform_int
+          params:
+            min: 1
+            max: 4
+      dtc:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 1.55
+            std: 0.4
 
-    - name: type_5
-      physiology:
-        - phys_parameter: U
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.336
-                - std: 0.25
-        - phys_parameter: D
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 600.0
-                  std: 22.0
-        - phys_parameter: F
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 22.0
-                  std: 5.0
-        - phys_parameter: gsyn
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 0.72
-                  std: 0.44
-        - phys_parameter: nrrp
-          distribution:
-            - type: uniform_int
-              dist_parameters:
-                - min: 1
-                  max: 4
-        - phys_parameter: dtc
-          distribution:
-            - type: truncated_gaussian
-              dist_parameters:
-                - mean: 1.55
-                  std: 0.4
+  type_5:
+    physiology:
+      U:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.336
+            std: 0.25
+      D:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 600.0
+            std: 22.0
+      F:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 22.0
+            std: 5.0
+      gsyn:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 0.72
+            std: 0.44
+      nrrp:
+        distribution:
+          name: uniform_int
+          params:
+            min: 1
+            max: 4
+      dtc:
+        distribution:
+          name: truncated_gaussian
+          params:
+            mean: 1.55
+            std: 0.4
