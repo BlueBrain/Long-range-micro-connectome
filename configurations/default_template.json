@@ -11,7 +11,7 @@
     "module_idx": {"prefrontal": [0, 9], "anterolateral": [9, 14], "somatomotor": [14, 23],
                            "visual": [23, 30], "medial": [30, 36], "temporal": [36, 43]},
     "class_to_layer": {"23": ["l2", "l3"], "4": ["l4"], "5it": ["l5"],
-                              "5pt": ["l5"], "6": ["l6"]},
+                              "5pt": ["l5"], "6": ["l6a", "l6b"]},
     "projection_class_fltrs": {"23": {"synapse_type": "EXC"}, "4": {"synapse_type": "EXC"},
                                "5it": {"synapse_type": "EXC", "proj_type": "intratelencephalic"},
                                "5pt": {"synapse_type": "EXC", "proj_type": "pyramidal tract"},
@@ -86,7 +86,7 @@
       }
     },
     "layer_profile_number": 6,
-    "layer_profile_layers": [["l1"], ["l2", "l3"], ["l4"], ["l5"], ["l6"]],
+    "layer_profile_layers": [["l1"], ["l2", "l3"], ["l4"], ["l5"], ["l6a", "l6b"]],
     "layer_profile_split_23": 1
   },
   "PTypes":
