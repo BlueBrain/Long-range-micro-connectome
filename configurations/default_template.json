@@ -7645,7 +7645,7 @@
     "module_separators_source": [0, 8, 9, 17, 22, 26, 27],
     "module_separators_target": [ 0,  9, 14, 23, 30, 36, 43],
     "threshold_fraction": 0.05,
-    "scaling": {"region": "SSp-ll", "value": 0.05534342,
+    "scaling": {"region": "SSp-ll", "value": 0.071220,
                 "measurement": "connection density"},
     "cache_manifest": "data/connectivity/voxel_model_manifest.json",
     "h5_cache": "cache/strength/projection_matrices.h5"
