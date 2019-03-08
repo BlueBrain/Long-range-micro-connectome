@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+
 def main(cfg):
     import h5py, os
     from white_matter.wm_recipe.projection_strength.master_proj_mats import master_proj_mats
