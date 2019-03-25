@@ -39,7 +39,11 @@ class ConnectomeInstance(object):
             os.makedirs(dir_local)
         with open(fn_local, 'wb') as f_out:
             data_size = int(r.headers.get('content-length'))
-            pbar = progressbar.ProgressBar(maxval=(data_size / chunk_size) + 1)
+            pbar = progressbar.ProgressBar(maxval=(data_size / chunk_size) + 1,
+                                           widgets=[progressbar.FormatLabel(fn_remote[len(self.url_prefix):] + "  "),
+                                                    progressbar.SimpleProgress(),
+                                                    progressbar.FormatLabel("  "),
+                                                    progressbar.ETA()])
             pbar.start()
             i = 0
             for chunk in r.iter_content(chunk_size=chunk_size):
@@ -49,6 +53,7 @@ class ConnectomeInstance(object):
                     i += 1
                     pbar.update(i)
             f_out.close()
+            r.close()
             pbar.finish()
 
     def _load_file(self, fn_remote, fn_local, read_method, overwrite=False):
