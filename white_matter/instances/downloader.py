@@ -2,7 +2,6 @@ import requests
 import os
 from scipy import sparse
 import numpy
-import pandas
 
 
 class ConnectomeInstance(object):
@@ -14,16 +13,16 @@ class ConnectomeInstance(object):
     url_list_files = 'Instance%d/__files'
     url_list_instances = '__instances'
     suffix = {'matrix': 'csc.npz', 'indices': 'indices.npy'}
-    url_neurons = 'https://bbp.epfl.ch/public/mouse-connectome/NEURONS.feather'
-    read_methods = {'matrix': sparse.load_npz, 'indices': numpy.load,
-                    'neurons': pandas.read_feather}
+    url_neurons = 'Instance%d/NEURONS.feather'
+    read_methods = {'matrix': sparse.load_npz, 'indices': numpy.load}
     valid_values = {'target_hemisphere': ['left', 'right'],
                     'sources': ['ipsi', 'contra', 'local'],
                     'data_type': ['matrix', 'indices']}
 
     def __init__(self, instance, cache_dir=None):
         """Usage:
-        I = ConnectomeInstance(1) instantiates the first generated whole-neocortex instance.
+        I = ConnectomeInstance(1) instantiates the first generated whole-neocortex instance. The first
+        argument specifies which instance to access.
         I = ConnectomeInstance(1, cache_dir='path/to/cache' specifies where the downloaded connection
         matrices should be kept."""
         assert isinstance(instance, int), "Instance must be an integer."
@@ -128,6 +127,19 @@ class ConnectomeInstance(object):
                 M = M + self._load(target_hemisphere, region, src, 'matrix',
                                    overwrite=overwrite, force=force)
         return M, indices
+
+    def neurons(self):
+        """Returns a pandas DataFrame with information about all neurons in the model, such as
+        locations, region, morphological type"""
+        try:
+            import pandas
+        except ImportError:
+            print "Reading neuron info requires 'pandas' and 'feather-format' to be installed!"
+            raise
+        fn = self.url_neurons % self.instance
+        fn_remote = self.url_prefix + fn
+        fn_local = os.path.join(self.cache_dir, fn)
+        return self._load_file(fn, fn_remote, fn_local, pandas.read_feather)
 
     @classmethod
     def available_instances(cls):
