@@ -1,7 +1,10 @@
 import numpy
 import logging
+from matplotlib import pyplot as plt
 from white_matter.wm_recipe.projection_mapping.barycentric import BarycentricConstrainedColors, BarycentricColors
 from white_matter.wm_recipe.projection_mapping.contract import contract_min
+from white_matter.wm_recipe.projection_mapping.custom_flatmap import NrrdFlatmap
+
 
 logging.basicConfig(level=1)
 info_log = logging.getLogger(__file__)
@@ -15,43 +18,50 @@ class BarycentricMaskMapper(BarycentricColors):
         self.__tmp_y = []
         self.__kwargs = kwargs
         self._mask = mask
+        if mask is not None:
+            self._nz = numpy.vstack(numpy.nonzero(self._mask)).transpose()
         if interactive:
-            self.get_triangle(mask)
+            self.get_triangle()
         else:
             self._find_corners(contract=contract)
 
     def _find_corners(self, contract=0.75):
-        from scipy.spatial import distance
-        nz = numpy.vstack(numpy.nonzero(self._mask)).transpose()
+        from scipy.spatial import distance, distance_matrix
+        nz = self._nz
         cog = numpy.mean(nz, axis=0)
-        D = numpy.vstack([distance.euclidean(_nz, cog) for _nz in nz])
-        p1 = numpy.argmax(D)
-        pD = distance.squareform(distance.pdist(nz))
-        p1D = numpy.array([distance.euclidean(_nz, nz[p1])
-                           for _nz in nz])
-        X, Y = numpy.meshgrid(range(len(p1D)), range(len(p1D)))
-        mx = numpy.argmax(p1D[X] + p1D[Y] + pD)
+
+        D = distance_matrix([cog], nz)[0]
+        p1 = numpy.argmax(D) # first point: Furthest away from center of region
+        pD = distance.squareform(distance.pdist(nz)) # pairwise distance for all pairs
+        p1D = distance_matrix(nz, nz[p1:(p1+1)]) # distance to first point. Shape: N x 1
+
+        mx = numpy.argmax(pD + p1D + p1D.transpose()) # maximize sum of distances between the three points
         p2 = numpy.mod(mx, pD.shape[1])
         p3 = mx / pD.shape[1]
-        ret = nz[[p1, p2, p3], -1::-1]
-        ret = cog[-1::-1] + contract * (ret - cog[-1::-1])
+        ret = nz[[p1, p2, p3]]
+        ret = cog + contract * (ret - cog)
         super(BarycentricMaskMapper, self).__init__(ret[:, 0], ret[:, 1],
                                                     **self.__kwargs)
         self.show_img()
 
-    def get_triangle(self, mask):
-        from matplotlib import pyplot as plt
+    def _image_figure(self):
         fig = plt.figure()
         ax = fig.add_axes([0, 0, 1, 1])
         plt.axis('off')
-        ax.imshow(mask)
+        ax.imshow(self._mask)
+        return fig, ax
+
+    def get_triangle(self):
+        fig, ax = self._image_figure()
 
         def onclick(event):
-            x = event.xdata
             y = event.ydata
+            x = event.xdata
+            print(x, y)
             if not numpy.isnan(x) and not numpy.isnan(y):
-                self.__tmp_x.append(x)
-                self.__tmp_y.append(y)
+                # x,y flipped because of behavior of imshow
+                self.__tmp_x.append(y)
+                self.__tmp_y.append(x)
                 ax.plot(x, y, 'ko')
             if len(self.__tmp_x) >= 3:
                 super(BarycentricMaskMapper, self).__init__(numpy.array(self.__tmp_x),
@@ -66,6 +76,31 @@ class BarycentricMaskMapper(BarycentricColors):
         if mask is None:
             mask = self._mask
         return super(BarycentricMaskMapper, self).show_img(mask, **kwargs)
+
+
+class IrregularGridMapper(BarycentricMaskMapper):
+
+    def __init__(self, xy, interactive=True, contract=0.75, **kwargs):
+        self._nz = xy
+        super(IrregularGridMapper, self).__init__(None, interactive=interactive, contract=contract)
+
+    def _image_figure(self):
+        fig = plt.figure()
+        ax = fig.add_axes([0, 0, 1, 1])
+        plt.axis('off')
+        for x, y in self._nz:
+            # x, y flipped to be consistent with imshow in the base class
+            ax.plot(y, x, 's', ms=20, color='black')
+        return fig, ax
+
+    def show_img(self, mask=None, **kwargs):
+        if mask is not None:
+            return super(BarycentricMaskMapper, self).show_img(mask, **kwargs)
+        cols = self.col(self._nz[:, 0], self._nz[:, 1])
+        ax = plt.figure().gca()
+        for x, y, col in zip(self._nz[:, 0], self._nz[:, 1], cols):
+            ax.plot(x, y, 's', ms=20, color=col)
+        return ax
 
 
 # noinspection PyUnresolvedReferences,PyDefaultArgument
@@ -135,15 +170,15 @@ class GeneralProjectionMapper(object):
         out_B[tgt_mask] = B[tgt_mask]
         return out_R, out_G, out_B
 
-    def mask_hemisphere(self, A, mask_val=False):
+    def mask_hemisphere(self, A, flatmap=True, mask_val=False):
         if self._used_hemisphere == 2:
-            if A.ndim == 3:
-                A[:, :(A.shape[1] / 2), :] = mask_val
+            if not flatmap:
+                A[:, :, :(A.shape[2] / 2)] = mask_val
             else:
                 A[:, :(A.shape[1] / 2)] = mask_val
         elif self._used_hemisphere == 1:
-            if A.ndim == 3:
-                A[:, (A.shape[1] / 2):, :] = mask_val
+            if flatmap:
+                A[:, :, (A.shape[2] / 2):] = mask_val
             else:
                 A[:, (A.shape[1] / 2):] = mask_val
 
@@ -159,18 +194,17 @@ class GeneralProjectionMapper(object):
         if exponent is not None:
             IMG = IMG ** exponent
         if equalize is not None:
-            channels = IMG[IMG.sum(axis=2) > 0]
+            channels = IMG[IMG.sum(axis=-1) > 0]
             if numpy.min(channels.mean(axis=0) / channels.mean(axis=0).sum()) < equalize[0]:
                 tgt = channels.mean(axis=0) ** equalize[1]
                 facs = (tgt * channels.mean(axis=0).sum()) / (tgt.sum() * channels.mean(axis=0))
-                IMG = IMG * facs.reshape((1, 1, 3))
+                IMG = IMG * facs.reshape(tuple(numpy.ones(IMG.ndim - 1, dtype=int)) + (3,))
         if relative_cutoff is not None:
-            IMGsum = numpy.sum(IMG, axis=2)
+            IMGsum = numpy.sum(IMG, axis=-1)
             cutoff = numpy.percentile(IMGsum[~numpy.isnan(IMGsum) & (IMGsum > 0)],
                                       relative_cutoff[0]) * relative_cutoff[1]
-            print cutoff
             IMG = IMG / cutoff
-            over = numpy.nonzero(IMG.sum(axis=2) > 1.0)
+            over = numpy.nonzero(IMG.sum(axis=-1) > 1.0)
             IMG[over] = IMG[over] / IMG[over].sum(axis=1).reshape((len(over[0]), 1))
         if normalize is not None:
             img_sum = numpy.nansum(IMG, axis=2)
@@ -204,15 +238,18 @@ class GeneralProjectionMapper(object):
     def _for_full_volume(self, **kwargs):
         raise NotImplementedError("This is implemented in derived classes")
 
-    def for_target(self, tgt, **kwargs):
+    def for_target(self, tgt, flatmap=True, **kwargs):
         kk = sorted(kwargs.keys())
         signature = tuple([kwargs[_k] for _k in kk])
         if signature not in self._res_cache:
             self._res_cache[signature] = self._for_full_volume(**kwargs)
         out_R, out_G, out_B = self.mask_result(tgt, *self._res_cache[signature])
-        return numpy.dstack([self._mapper.transform(out_R, agg_func=numpy.nanmean),
-                             self._mapper.transform(out_G, agg_func=numpy.nanmean),
-                             self._mapper.transform(out_B, agg_func=numpy.nanmean)])
+        if flatmap:
+            return numpy.dstack([self._mapper.transform(out_R, agg_func=numpy.nanmean),
+                                 self._mapper.transform(out_G, agg_func=numpy.nanmean),
+                                 self._mapper.transform(out_B, agg_func=numpy.nanmean)])
+        else:
+            return numpy.stack([out_R, out_G, out_B], 3)
 
     def draw_source(self, ax=None, **kwargs):
         from matplotlib import pyplot as plt
@@ -258,8 +295,8 @@ class GeneralProjectionMapper(object):
     def _fit_func(self, abc, xy, exponent=1.0, mul_angle=10.0, mul_overlap=10.0, opt_args={}):
         def _max_angle(pt):
             from scipy.stats import norm
-            A = numpy.vstack([pt[:3], pt[3:]]).transpose()
-            normalize = lambda _x: _x / numpy.sqrt((_x ** 2).sum())
+            A = pt.reshape(-1, 3).transpose()
+            normalize = lambda _x: _x / numpy.linalg.norm(_x)
             cos_ang = [normalize(A[1] - A[0]).dot(normalize(A[2] - A[0])),
                        normalize(A[0] - A[1]).dot(normalize(A[2] - A[1])),
                        normalize(A[0] - A[2]).dot(normalize(A[1] - A[2]))]
@@ -276,8 +313,8 @@ class GeneralProjectionMapper(object):
         initial_solution = numpy.linalg.lstsq(abc[v], xy[v], rcond=-1)[0]
 
         def evaluate_error(pt):
-            res = BarycentricConstrainedColors(pt[:3], pt[3:])
-            cols = res.col(xy[:, 0], xy[:, 1])
+            res = BarycentricConstrainedColors(*numpy.split(pt, numpy.arange(3, len(pt), 3)))
+            cols = res.col(*xy.transpose())
             return (numpy.abs(cols - abc)).flatten() * _overlap(cols) * _max_angle(pt)
 
         info_log.info("\tInitial solution: %s" % str(initial_solution))
@@ -289,32 +326,32 @@ class GeneralProjectionMapper(object):
         info_log.info("\tMean final error is %f" % final_error)
         from white_matter.wm_recipe.projection_mapping.contract import estimate_mapping_var
 
-        x_out, y_out = contract_min(sol[0][:3], sol[0][3:], xy)
-        col_sys = BarycentricConstrainedColors(x_out, y_out)
-        map_var = estimate_mapping_var(abc, col_sys.col(xy[:, 0], xy[:, 1]))
+        params_out = contract_min(sol[0], xy)
+        col_sys = BarycentricConstrainedColors(*params_out)
+        map_var = estimate_mapping_var(abc, col_sys.col(*xy.transpose()))
         map_var = numpy.maximum(map_var, 0.25)
         overlaps = self.mapping_overlap(col_sys, xy, min_dist=map_var)
 
         return col_sys, map_var, overlaps, final_error
 
     def fit_target_coordinates(self, IMG, **kwargs):
-        valid = numpy.all(~numpy.isnan(IMG), axis=2) & (numpy.nansum(IMG, axis=2) > 0)
+        valid = numpy.all(~numpy.isnan(IMG), axis=-1) & (numpy.nansum(IMG, axis=-1) > 0)
         nz = numpy.nonzero(valid)
-        abc = IMG[nz[0], nz[1], :]
-        xy = numpy.vstack([nz[1], nz[0]]).transpose()
+        abc = IMG[nz]
+        xy = numpy.vstack(nz).transpose()
         return self._fit_func(abc, xy, **kwargs)
 
     # noinspection PyUnboundLocalVariable
     def make_target_region_coordinate_system(self, tgt, target_args={}, pp_use={},
                                              pp_display={}, fit_args={},
-                                             src_args={}, draw=True):
+                                             src_args={}, flatmap=True, draw=True):
         if draw:
             ax, IMG = self.draw_projection(tgt, target_args=target_args,
                                            pp_args=pp_display, src_args=src_args,
                                            draw_source=True,
                                            return_img=True)
-        IMG = self.for_target(tgt, **target_args)
-        self.mask_hemisphere(IMG, mask_val=numpy.NaN)
+        IMG = self.for_target(tgt, flatmap=flatmap, **target_args)
+        self.mask_hemisphere(IMG, flatmap=flatmap, mask_val=numpy.NaN)
         IMG = self.post_processing(IMG, **pp_use)
         info_log.info("Fitting for target %s" % tgt)
         res_coords, map_var, overlaps, final_error = self.fit_target_coordinates(IMG, **fit_args)
@@ -342,11 +379,14 @@ class VoxelArrayBaryMapper(GeneralProjectionMapper):
         self._source_dict = dict([(v, i) for i, v in enumerate(self._source_flat)])
 
     @classmethod
-    def from_cache(cls, cache):
+    def from_cache(cls, cache, custom_flatmap=None):
         from mcmodels.core.cortical_map import CorticalMap
         voxel_array, source_mask, target_mask = cache.get_voxel_connectivity_array()
         vol, _ = cache.get_annotation_volume()
-        M = CorticalMap(projection='dorsal_flatmap')
+        if custom_flatmap is None:
+            M = CorticalMap(projection='dorsal_flatmap')
+        else:
+            M = NrrdFlatmap(custom_flatmap)
         tree = cache.get_structure_tree()
         return cls(voxel_array, source_mask.coordinates, target_mask.coordinates,
                    vol, M, tree)
@@ -365,7 +405,7 @@ class VoxelArrayBaryMapper(GeneralProjectionMapper):
     # noinspection PyUnusedLocal
     def cols_and_paths(self, mask2d, bary, shuffle=False):
         nz2d = numpy.nonzero(mask2d)
-        cols = bary.col(nz2d[1], nz2d[0])
+        cols = bary.col(nz2d[0], nz2d[1])
         paths = self._mapper.paths[self._mapper.view_lookup[mask2d]]
         return cols, paths, zip(*nz2d)
 
@@ -427,10 +467,13 @@ class VoxelNodeBaryMapper(GeneralProjectionMapper):
         self._cache = cache
 
     @classmethod
-    def from_cache(cls, cache):
+    def from_cache(cls, cache, custom_flatmap=None):
         from mcmodels.core.cortical_map import CorticalMap
         vol, _ = cache.get_annotation_volume()
-        M = CorticalMap(projection='dorsal_flatmap')
+        if custom_flatmap is None:
+            M = CorticalMap(projection='dorsal_flatmap')
+        else:
+            M = NrrdFlatmap(custom_flatmap)
         tree = cache.get_structure_tree()
         return cls(cache, vol, M, tree)
 
@@ -508,3 +551,73 @@ class VoxelNodeBaryMapper(GeneralProjectionMapper):
             for _e, _c in zip(self._exp_locs, self._exp_cols):
                 ax.plot(_e[1], _e[0], 'o', color=_c)
         return ret
+
+
+class CustomSourceFlatMapper(VoxelArrayBaryMapper):
+
+    def __init__(self, source_flatmap, voxel_array, source_coords, target_coords,
+                 annotation_volume, mapper, structure_tree):
+        super(CustomSourceFlatMapper, self).__init__(voxel_array, source_coords, target_coords,
+                                                           annotation_volume, mapper, structure_tree)
+        self._src_fm = source_flatmap
+
+    @classmethod
+    def from_cache(cls, cache, source_flatmap):
+        from mcmodels.core.cortical_map import CorticalMap
+        voxel_array, source_mask, target_mask = cache.get_voxel_connectivity_array()
+        vol, _ = cache.get_annotation_volume()
+        M = CorticalMap(projection='dorsal_flatmap')
+        tree = cache.get_structure_tree()
+        return cls(source_flatmap, voxel_array, source_mask.coordinates, target_mask.coordinates,
+                   vol, M, tree)
+
+    def prepare_for_source(self, src, interactive=True, contract=0.75):
+        if src == self._prepared_for:
+            return
+        else:
+            self._used_hemisphere = 2
+            self._res_cache = {}
+            self._prepared_for = src
+            self._mask3d = self.make_volume_mask(src)
+            nz3d = numpy.nonzero(self._mask3d)
+            self._nz2d = self._src_fm[nz3d]
+            self._nz3d = numpy.vstack(nz3d).transpose()
+            # self.mask_hemisphere(self._nz2d) # TODO: For now masking is done by setting the left hemisphere to NaN in the flatmap volume
+            self._nz3d = self._nz3d[~numpy.any(numpy.isnan(self._nz2d), axis=1)]
+            self._nz2d = self._nz2d[~numpy.any(numpy.isnan(self._nz2d), axis=1)]
+            self._bary = IrregularGridMapper(self._nz2d,
+                                             interactive=interactive,
+                                             contract=contract)
+            self._relevant_paths = self.paths_in_source_volume(self._mask3d)
+
+    def _for_full_volume(self, thresh=1.5, shuffle=False, normalize=True):
+        import progressbar
+        self._cols = self._bary.col(self._nz2d[:, 0], self._nz2d[:, 1])
+        valid = numpy.in1d(self._relevant_paths, self._three_d2flat_idx(self._nz3d))
+        self._cols = self._cols[valid]
+        self._paths = self._three_d2flat_idx(self._nz3d)[valid]
+        value = numpy.abs(numpy.diff(numpy.hstack([self._cols, self._cols[:, 0:1]]), axis=1)).sum(axis=1)
+        out_R = numpy.zeros(self._mask3d.shape, dtype=float)
+        out_G = numpy.zeros(self._mask3d.shape, dtype=float)
+        out_B = numpy.zeros(self._mask3d.shape, dtype=float)
+        out_count = numpy.zeros(self._mask3d.shape, dtype=float)
+        pbar = progressbar.ProgressBar()
+        self._sampled = []
+
+        for _col, _path, _val, _pt in pbar(zip(self._cols, self._paths, value, self._nz2d)):
+            if _val > thresh:
+                proj = self.proj_for_voxel_3d(_path)
+                out_count += proj
+                if shuffle:
+                    _col = numpy.random.permutation(_col)
+                out_R += _col[0] * proj
+                out_G += _col[1] * proj
+                out_B += _col[2] * proj
+                self._sampled.append((_pt[0], _pt[1], _col))
+
+        if normalize:
+            out_R /= out_count
+            out_G /= out_count
+            out_B /= out_count
+        return out_R, out_G, out_B
+

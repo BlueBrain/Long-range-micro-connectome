@@ -19,7 +19,7 @@ def make_mapper(cfg):
         raise Exception("Unknown mapper class: %s" % cfg['class'])
     cache = mcmodels.core.VoxelModelCache(
         manifest_file=cfg["cache_manifest"])
-    obj = cls.from_cache(cache)
+    obj = cls.from_cache(cache, custom_flatmap=cfg.get('flatmap', None))
     return obj
 
 
