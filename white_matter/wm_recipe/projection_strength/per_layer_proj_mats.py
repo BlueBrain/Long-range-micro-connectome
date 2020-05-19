@@ -83,14 +83,16 @@ def per_layer_proj_mats(cfg, mpr, M_i, M_c, scale=True, vol_dict=None):
         deactivate_where_volume_is_zero(FINAL, vol_dict, mpr)
 
     '''APPLY CUTOFF TO REMOVE VERY WEAK PROJECTIONS. CUTOFF SELECTED SUCH THAT 5% OF THE TOTAL DENSITY IS LOST'''
-    all_str_vals = numpy.hstack([x.flatten() for x in FINAL.values()])
-    all_str_vals.sort()
-    cutoff = all_str_vals[numpy.nonzero((numpy.cumsum(all_str_vals) /
-                                         numpy.nansum(all_str_vals)) > frac_lost_in_thresh)[0][0]]
-
-    def apply_cutoff(X):
-        X[X < cutoff] = 0.0
-        X[numpy.isnan(X)] = 0.0
-    dictmap(FINAL, apply_cutoff)
+    def set_cutoff(lst_keys):
+        all_str_vals = numpy.hstack([FINAL[k].flatten() for k in lst_keys])
+        all_str_vals.sort()
+        cutoff = all_str_vals[numpy.nonzero((numpy.cumsum(all_str_vals) /
+                                             numpy.nansum(all_str_vals)) > frac_lost_in_thresh)[0][0]]
+        for k in lst_keys:
+            FINAL[k][FINAL[k] < cutoff] = 0.0
+            FINAL[k][numpy.isnan(FINAL[k])] = 0.0
+    '''Separately for cortex and thalamus'''
+    set_cutoff([k for k in FINAL.keys() if k[1][1] == 'tc'])
+    set_cutoff([k for k in FINAL.keys() if k[1][1] != 'tc'])
     return FINAL
 

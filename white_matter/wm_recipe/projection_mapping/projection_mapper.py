@@ -40,20 +40,24 @@ class ProjectionMapper(object):
         with h5py.File(self.cfg["h5_fn"], 'r') as h5:
             x = numpy.array(h5[src]['coordinates']['x'])
             y = numpy.array(h5[src]['coordinates']['y'])
-            base_sys = h5[src]['coordinates'].attrs.get('base_coord_system', 'Allen Dorsal Flatmap')
+            base_sys = h5[src]['coordinates'].attrs.get('base_coord_system', 'Allen Dorsal Flatmap') # TODO: make dataset
         x = self.move_to_right_hemi(x)
         return x, y, base_sys
 
     def for_target(self, src):
         def _for_target(tgt, hemi):
-            with h5py.File(self.cfg["h5_fn"], 'r') as h5:
-                x = numpy.array(h5[src]['targets'][tgt]['coordinates/x'])
-                y = numpy.array(h5[src]['targets'][tgt]['coordinates/y'])
-                base_sys = h5[src]['targets'][tgt]['coordinates'].attrs.get('base_coord_system', 'Allen Dorsal Flatmap')
-                var = h5[src]['targets'][tgt]['mapping_variance'][0]
-            if hemi == 'ipsi':
-                x = self.move_to_right_hemi(x)
-            elif hemi == 'contra':
-                x = self.move_to_left_hemi(x)
+            try:
+                with h5py.File(self.cfg["h5_fn"], 'r') as h5:
+                    x = numpy.array(h5[src]['targets'][tgt]['coordinates/x'])
+                    y = numpy.array(h5[src]['targets'][tgt]['coordinates/y'])
+                    base_sys = str(h5[src]['targets'][tgt]['coordinates/base_coord_system'].value)
+                    var = h5[src]['targets'][tgt]['mapping_variance'][0]
+                if hemi == 'ipsi':
+                    x = self.move_to_right_hemi(x)
+                elif hemi == 'contra':
+                    x = self.move_to_left_hemi(x)
+            except:
+                print("Insufficient data for projection {0} - {1}, {2}".format(src, tgt, hemi))
+                raise
             return x, y, base_sys, var
         return _for_target

@@ -2,11 +2,13 @@ import numpy
 from barycentric import BarycentricCoordinates
 
 
-def contract_min(x, y, xy, target_d=0.075):
+def contract_min(pts, xy, target_d=0.075):
     from scipy.spatial import distance_matrix
+    split_view = numpy.split(pts, numpy.arange(3, len(pts), 3))
     mn = xy.mean(axis=0)
+
     counter = 0
-    bary = BarycentricCoordinates(x, y).cart2bary(xy[:, 0], xy[:, 1])
+    bary = BarycentricCoordinates(*split_view).cart2bary(*xy.transpose())
     tgts = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
     oldD = numpy.NaN
     D = distance_matrix(tgts, bary).min(axis=0)
@@ -14,12 +16,12 @@ def contract_min(x, y, xy, target_d=0.075):
         span = D.max() - D.min()
         fac = span / D.max()
         for i in range(3):
-            _of_point(x, y, i, mn, fac)
-        bary = BarycentricCoordinates(x, y).cart2bary(xy[:, 0], xy[:, 1])
+            _of_point(split_view, i, mn, fac)
+        bary = BarycentricCoordinates(*split_view).cart2bary(*xy.transpose())
         oldD = D.min()
         D = distance_matrix(tgts, bary).min(axis=0)
         counter += 1
-    return x, y
+    return split_view
 
 
 def estimate_mapping_var(data, model):
@@ -54,10 +56,10 @@ def _around_point(x, y, i, cog, tgt_fac):
     return x, y
 
 
-def _of_point(x, y, i, cog, fac):
-    x[i] = cog[0] + fac * (x[i] - cog[0])
-    y[i] = cog[1] + fac * (y[i] - cog[1])
-    return x, y
+def _of_point(split_view, i, cog, fac):
+    for j, coord in enumerate(split_view):
+        coord[i] = cog[j] + fac * (coord[i] - cog[j])
+    return split_view
 
 
 def expand(x_in, y_in, xy):

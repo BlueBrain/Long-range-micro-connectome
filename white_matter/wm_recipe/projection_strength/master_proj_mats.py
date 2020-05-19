@@ -15,7 +15,10 @@ def make_voxel_model(cfg):
 def get_layer_specific_ids(tree, vol, mpr):
     r_id = [_r['id'] for _r in tree.get_structures_by_acronym(mpr.region_names)]
     descendants = numpy.hstack(tree.child_ids(r_id))
-    return descendants[numpy.in1d(descendants, vol)]
+    if len(descendants):
+        return descendants[numpy.in1d(descendants, vol)]
+    else:
+        return r_id
 
 
 def make_regionalized_model(voxel_array, source_mask, target_mask, tree, vol, hemi,

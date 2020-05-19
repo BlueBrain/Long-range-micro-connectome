@@ -22,7 +22,7 @@ class ProjectionStrength(object):
             self.mpr = RegionMapper(cfg_file=cfg_file)
         self.cfg_file = cfg_file
         self.cfg = read_config(cfg_file)
-        self._DSET_SHAPE = (43, 43)
+        self._DSET_SHAPE = (len(self.mpr.region_names), len(self.mpr.region_names))
 
     @staticmethod
     def _dict_to_path(D):
@@ -64,7 +64,7 @@ class ProjectionStrength(object):
                     fac = 1.0
                     if src_type.startswith('5'):
                         tmp_type = '5'
-                        fac = 0.5
+                        fac = 0.5 # Assumed split 50-50 between 5it and 5pt. Find a better solution in the future...
                     Vi = fac * V * numpy.vstack([rel_vols[_x][tmp_type] for _x in self.mpr.region_names])
                     M = self.__call__(measurement=base_measurement, src_type=src_type, hemi=hemi)
                     MN = M / Vi

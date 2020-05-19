@@ -177,7 +177,7 @@ class GeneralProjectionMapper(object):
             else:
                 A[:, :(A.shape[1] / 2)] = mask_val
         elif self._used_hemisphere == 1:
-            if flatmap:
+            if not flatmap:
                 A[:, :, (A.shape[2] / 2):] = mask_val
             else:
                 A[:, (A.shape[1] / 2):] = mask_val
@@ -553,7 +553,7 @@ class VoxelNodeBaryMapper(GeneralProjectionMapper):
         return ret
 
 
-class CustomSourceFlatMapper(VoxelArrayBaryMapper):
+'''class CustomSourceFlatMapper(VoxelArrayBaryMapper):
 
     def __init__(self, source_flatmap, voxel_array, source_coords, target_coords,
                  annotation_volume, mapper, structure_tree):
@@ -619,5 +619,5 @@ class CustomSourceFlatMapper(VoxelArrayBaryMapper):
             out_R /= out_count
             out_G /= out_count
             out_B /= out_count
-        return out_R, out_G, out_B
+        return out_R, out_G, out_B'''
 

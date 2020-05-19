@@ -35,6 +35,7 @@ def main(cfg, obj, src):
     pp_display = cfg["pp_display"]
     prepare_args = cfg["prepare_args"]
     fit_args = cfg["fit_args"]
+    flatmap_str = cfg.get("flatmap", "Allen Dorsal Flatmap")
     if "cre" in prepare_args and prepare_args["cre"] == "None":
         print "Using both cre positive and negative experiments"
         prepare_args["cre"] = None
@@ -55,9 +56,9 @@ def main(cfg, obj, src):
 
     grp = h5.require_group(str(src))
     grp_coords = grp.require_group('coordinates')
-    grp_coords.attrs['base_coord_system'] = "Allen Dorsal Flatmap"
-    grp_coords.require_dataset('x', (3,), float, data=obj._bary._x)
-    grp_coords.require_dataset('y', (3,), float, data=obj._bary._y)
+    grp_coords.attrs['base_coord_system'] = flatmap_str # TODO: make dataset instead of attribute
+    grp_coords.require_dataset('x', (3,), float, data=obj._bary._coords[0])
+    grp_coords.require_dataset('y', (3,), float, data=obj._bary._coords[1])
     grp = grp.require_group('targets')
 
     for tgt in mpr.region_names:
@@ -76,9 +77,9 @@ def main(cfg, obj, src):
             ax1.figure.savefig(os.path.join(tgt_plots, ('%s_data' % str(tgt)) + cfg["plot_extension"]))
             ax2.figure.savefig(os.path.join(tgt_plots, ('%s_model' % str(tgt)) + cfg["plot_extension"]))
             plt.close('all')
-            tgt_grp.create_dataset('coordinates/base_coord_system', data="Allen Dorsal Flatmap")
-            tgt_grp.create_dataset('coordinates/x', data=res._x)
-            tgt_grp.create_dataset('coordinates/y', data=res._y)
+            tgt_grp.create_dataset('coordinates/base_coord_system', data=flatmap_str)
+            tgt_grp.create_dataset('coordinates/x', data=res._coords[0])
+            tgt_grp.create_dataset('coordinates/y', data=res._coords[1])
             tgt_grp.create_dataset('mapping_variance', data=[map_var])
             tgt_grp.create_dataset('error', data=[error])
             tgt_grp.create_dataset('overlaps', data=overlaps)

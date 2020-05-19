@@ -7,9 +7,9 @@ class NrrdFlatmap(object):
         self.raw_map = voxcell.VoxelData.load_nrrd(fn)
         self._something()
 
-    def transform(self, vol3d, agg_func=numpy.nanmean):
+    def transform(self, vol3d, agg_func=numpy.nansum):
         assert vol3d.shape == self.REFERENCE_SHAPE
-        out = numpy.zeros(self.view_lookup.shape)
+        out = numpy.zeros(self.view_lookup.shape, dtype=vol3d.dtype)
         nz = numpy.nonzero(self.view_lookup > -1)
         for i, j in zip(*nz):
             flat_idx = self.paths[self.view_lookup[i, j]]
@@ -25,7 +25,7 @@ class NrrdFlatmap(object):
         nz = numpy.nonzero(vol)
         idx = map(tuple, raw[nz])
         view_shape = tuple(raw[nz].max(axis=0) + 1)
-        nz = numpy.nonzero(vol.reshape(-1))[0] + 1 # because a 0 in paths means no value..?
+        nz = numpy.nonzero(vol.reshape(-1))[0] # because a 0 in paths means no value..?
 
         path_map = {}
         self.view_lookup = -numpy.ones(view_shape, dtype=int)
