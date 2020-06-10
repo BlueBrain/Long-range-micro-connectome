@@ -19,8 +19,8 @@ class ProjectionWriter(object):
             if not is_valid:
                 continue
             tgt_full_name = self.namer.comb_pop(tgt_region, 'ALL_LAYERS')
-            l_prof = self.profile_mixer.max_module(source_name, self.mpr.region2module(reg_fr),
-                                                   self.mpr.region2module(tgt_region)) + 1
+            l_prof = self.profile_mixer.max(source_name, self.mpr.region2idx(reg_fr),
+                                                   self.mpr.region2idx(tgt_region)) + 1
             yield base_name, tgt_region, tgt_full_name, val_tgt, l_prof
 
     def __call__(self, fid):

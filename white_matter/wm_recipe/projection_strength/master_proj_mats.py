@@ -94,7 +94,7 @@ def scale_to_target(cfg, mpr, Mtrx):
 def master_proj_mats(cfg, mpr):
     voxel_array, source_mask, target_mask, tree, vol = make_voxel_model(cfg)
     mdl_i = make_regionalized_model(voxel_array, source_mask, target_mask, tree, vol,
-                                    'ispi', mpr, per_layer=False)
+                                    'ipsi', mpr, per_layer=False)
     mdl_c = make_regionalized_model(voxel_array, source_mask, target_mask, tree, vol,
                                     'contra', mpr, per_layer=False)
     measurements = ['connection strength', 'connection density',

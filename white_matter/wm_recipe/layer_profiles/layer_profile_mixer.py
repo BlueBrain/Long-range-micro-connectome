@@ -64,14 +64,15 @@ class ProfileMixer(object):
         self.profiles_m = ModuleProfiles(cfg_file, self.mpr)
         self.modules = self.mpr.module_idx
         self.pw_strength = proj_strength
-        self._hierarchy = ['ACAd', 'AIv', 'TEa', 'ACAv', 'MOs', 'VISC', 'ORBvl',
+        self._hierarchy = ['PO', 'ACAd', 'AIv', 'TEa', 'ACAv', 'MOs', 'VISC', 'ORBvl',
                            'SSp-un', 'VISa', 'VISpor', 'VISam', 'AUDpo', 'VISpm',
                            'FRP', 'ORBl', 'PL', 'RSPagl', 'AId', 'ORBm', 'VISal',
                            'VISrl', 'ILA', 'SSp-tr', 'RSPd', 'MOp', 'VISli', 'VISl',
                            'RSPv', 'SSs', 'SSp-bfd', 'VISpl', 'SSp-m', 'SSp-ul', 'AIp',
-                           'AUDd', 'SSp-ll', 'SSp-n', 'AUDp', 'VISp']  #TODO: Read from config
+                           'AUDd', 'SSp-ll', 'SSp-n', 'AUDp', 'VISp', 'VPM', 'VPL']  #TODO: Read from config
+        # Note: We assume that connections from PO are always feedback, from VPM and VPL always feedforward
         self._m_hierarchy = ['prefrontal', 'anterolateral', 'medial', 'visual',
-                             'temporal', 'somatomotor']
+                             'temporal', 'somatomotor', 'thalamus']
         '''No hierarchy reported for 4 regions. We put them in the middle (index 20).'''
         self.idx2hierarchy = [self._hierarchy.index(_x) if _x in self._hierarchy
                               else 20 for _x in self.mpr.region_names]
