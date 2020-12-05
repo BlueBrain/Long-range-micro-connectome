@@ -51,7 +51,7 @@ class PTypeWriter(object):
                                       for hemi in ['ipsi', 'contra']])
             src_mat = p_type_mdl.first_order_mat()
             for reg_from in self.mpr.region_names:
-                print "Getting interactions for %s" % reg_from
+                print("Getting interactions for %s" % reg_from)
                 M_i = p_type_mdl.interaction_mat(reg_from, no_redundant=True)
                 M_i[M_i < self.thresh] = 1.0
 
@@ -60,7 +60,7 @@ class PTypeWriter(object):
                 proj_fracs = src_mat[self.mpr.region2idx(reg_from)]
                 valid1 = (proj_fracs > 0) & src_valid[self.mpr.region2idx(reg_from)]
                 if not numpy.any(valid1):
-                    print "Nothing for %s, %s" % (reg_from, source_name)
+                    print("Nothing for %s, %s" % (reg_from, source_name))
                     continue
                 subM = M_i[:, valid1][valid1]
                 proj_list = [_x for _v, _x in zip(valid1, proj_list) if _v]

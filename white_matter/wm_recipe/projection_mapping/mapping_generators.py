@@ -1,9 +1,9 @@
 import numpy
 import logging
 from matplotlib import pyplot as plt
-from white_matter.wm_recipe.projection_mapping.barycentric import BarycentricConstrainedColors, BarycentricColors
-from white_matter.wm_recipe.projection_mapping.contract import contract_min
-from white_matter.wm_recipe.projection_mapping.custom_flatmap import NrrdFlatmap
+from .barycentric import BarycentricConstrainedColors, BarycentricColors
+from .contract import contract_min
+from .custom_flatmap import NrrdFlatmap
 
 
 logging.basicConfig(level=1)

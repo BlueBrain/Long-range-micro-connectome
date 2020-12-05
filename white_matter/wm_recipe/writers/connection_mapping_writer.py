@@ -1,4 +1,4 @@
-from copy_writer import CopyWriter
+from .copy_writer import CopyWriter
 
 
 class ConnectionMappingWriter(CopyWriter):

@@ -1,6 +1,6 @@
-from white_matter.wm_recipe.parcellation import RegionMapper
+from ..parcellation import RegionMapper
 import numpy
-from white_matter.utils.data_from_config import ConfiguredDataSource, read_config
+from ...utils.data_from_config import ConfiguredDataSource, read_config
 
 #mpr = RegionMapper()
 

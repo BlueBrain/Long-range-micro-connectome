@@ -1,1 +1,1 @@
-from query_streamlines import StreamlineDownloader
+from .query_streamlines import StreamlineDownloader

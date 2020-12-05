@@ -1,5 +1,5 @@
 import numpy
-from barycentric import BarycentricCoordinates
+from .barycentric import BarycentricCoordinates
 
 
 def contract_min(pts, xy, target_d=0.075):

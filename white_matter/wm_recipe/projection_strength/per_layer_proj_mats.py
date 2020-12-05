@@ -1,5 +1,5 @@
 import numpy
-from white_matter.utils.data_from_config import ConfiguredDataSource
+from ...utils.data_from_config import ConfiguredDataSource
 '''The strategy to combine a wild type connection matrix with digitized 
 data for projection-class-specific projection strength to derive dense
 projection-class-specific matrices'''

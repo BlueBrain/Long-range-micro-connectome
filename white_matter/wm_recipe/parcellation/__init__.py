@@ -1,1 +1,1 @@
-from region_mapper import RegionMapper
+from .region_mapper import RegionMapper

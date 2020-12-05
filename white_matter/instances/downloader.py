@@ -134,7 +134,7 @@ class ConnectomeInstance(object):
         try:
             import pandas
         except ImportError:
-            print "Reading neuron info requires 'pandas' and 'feather-format' to be installed!"
+            print("Reading neuron info requires 'pandas' and 'feather-format' to be installed!")
             raise
         fn = self.url_neurons % self.instance
         fn_remote = self.url_prefix + fn

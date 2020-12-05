@@ -1,5 +1,5 @@
-from white_matter.utils.data_from_config import read_config as read_config_default
-from white_matter.wm_recipe.parcellation import RegionMapper
+from ...utils.data_from_config import read_config as read_config_default
+from ..parcellation import RegionMapper
 
 
 def read_config(fn):
@@ -69,8 +69,8 @@ class ProjectionStrength(object):
                     M = self.__call__(measurement=base_measurement, src_type=src_type, hemi=hemi)
                     MN = M / Vi
                     MN[numpy.isinf(MN)] = numpy.NaN
-                    print self._dict_to_path({"measurement": measurement,
-                                              "src_type": src_type, "hemi": hemi})
+                    print(self._dict_to_path({"measurement": measurement,
+                                              "src_type": src_type, "hemi": hemi}))
                     h5.require_dataset(self._dict_to_path({"measurement": measurement,
                                                            "src_type": src_type, "hemi": hemi}),
                                        self._DSET_SHAPE, float, data=MN)

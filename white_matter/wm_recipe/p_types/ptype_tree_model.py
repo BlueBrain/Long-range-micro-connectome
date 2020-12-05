@@ -32,9 +32,9 @@ def adjust_groups(rr, P):
     valid = numpy.nonzero(numpy.diff(P, axis=0).sum(axis=1))[0] + 1
     P = P[numpy.hstack([0, valid])]
     rr = rr[numpy.hstack([0, valid])]
-    for i in xrange(len(P) - 1):
+    for i in range(len(P) - 1):
         mp = map_step(P[i], P[i + 1])
-        for j in xrange(P.shape[1]):
+        for j in range(P.shape[1]):
             P[i + 1, j] = mp[P[i + 1, j]]
     return rr, P
 
@@ -79,7 +79,7 @@ def make_tree(rr, P):
     idx = P.shape[1]
     for p, r in zip(P[-1::-1], rr[-1::-1]):
         idx = merge_step(lst_nodes, p, r, G, idx)
-    print lst_nodes
+    print(lst_nodes)
     return G
 
 
@@ -426,7 +426,7 @@ def _naive_model(val_data, smpls=1000):
     N = val_data.shape[1]
     mn_data = val_data.mean(axis=0)
     return numpy.vstack([numpy.random.rand(N) <= mn_data
-                         for _ in xrange(smpls)])
+                         for _ in range(smpls)])
 
 
 def _make_bins(v):
@@ -486,7 +486,7 @@ def validate_tree_model(tree_mdl, val_idx, val_data, smpls=10000, dist='citybloc
         ret[idx] = True
         return ret
     grown = [tree_mdl.grow_from(val_idx)
-             for _ in xrange(smpls)]
+             for _ in range(smpls)]
     grown = numpy.vstack([idx2bc(_x) for _x in grown])
     D_data = distance_func(val_data, dist=dist)
     D_model = distance_func(grown, dist=dist)

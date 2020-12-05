@@ -1,4 +1,4 @@
-from white_matter.utils.data_from_config import read_config
+from ...utils.data_from_config import read_config
 
 
 class SynapseTypes(object):

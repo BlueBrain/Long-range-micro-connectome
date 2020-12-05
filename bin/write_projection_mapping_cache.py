@@ -37,7 +37,7 @@ def main(cfg, obj, src):
     fit_args = cfg["fit_args"]
     flatmap_str = cfg.get("flatmap", "Allen Dorsal Flatmap")
     if "cre" in prepare_args and prepare_args["cre"] == "None":
-        print "Using both cre positive and negative experiments"
+        print("Using both cre positive and negative experiments")
         prepare_args["cre"] = None
 
     out_plots = cfg["plot_dir"]
@@ -88,7 +88,7 @@ def main(cfg, obj, src):
                 tgt_grp.create_dataset('n_experiments', data=[N])
             h5.flush()
         except Exception:
-            print "Trouble with %s/%s" % (str(src), str(tgt))
+            print("Trouble with %s/%s" % (str(src), str(tgt)))
             continue
     h5.close()
 

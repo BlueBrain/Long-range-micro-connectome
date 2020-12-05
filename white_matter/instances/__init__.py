@@ -1,1 +1,1 @@
-from downloader import ConnectomeInstance
+from .downloader import ConnectomeInstance

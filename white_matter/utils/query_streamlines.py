@@ -53,12 +53,12 @@ class StreamlineDownloader(object):
         if os.path.isfile(fn):
             return fn
         command = ["wget", "-O", fn, q]
-        print command
+        print(command)
         proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, bufsize=0)
         retcode = proc.wait()
         if retcode > 0:
-            print q
+            print(q)
             raise RuntimeError("Error executing query")
         return fn
 
