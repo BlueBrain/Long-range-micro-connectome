@@ -20,6 +20,7 @@ class BarycentricMaskMapper(BarycentricColors):
         self._mask = mask
         if mask is not None:
             self._nz = numpy.vstack(numpy.nonzero(self._mask)).transpose()
+        self._dim = self._nz.shape[1]
         if interactive:
             self.get_triangle()
         else:
@@ -36,8 +37,8 @@ class BarycentricMaskMapper(BarycentricColors):
         p1D = distance_matrix(nz, nz[p1:(p1+1)]) # distance to first point. Shape: N x 1
 
         mx = numpy.argmax(pD + p1D + p1D.transpose()) # maximize sum of distances between the three points
-        p2 = numpy.mod(mx, pD.shape[1])
-        p3 = mx / pD.shape[1]
+        p2 = int(numpy.mod(mx, pD.shape[1]))
+        p3 = int(mx / pD.shape[1])
         ret = nz[[p1, p2, p3]]
         ret = cog + contract * (ret - cog)
         super(BarycentricMaskMapper, self).__init__(ret[:, 0], ret[:, 1],
@@ -136,8 +137,8 @@ class GeneralProjectionMapper(object):
         return r_ids
 
     def _make_reverse_lookup(self):
-        Y, X = numpy.meshgrid(xrange(self._mapper.view_lookup.shape[1]),
-                              xrange(self._mapper.view_lookup.shape[0]))
+        Y, X = numpy.meshgrid(range(self._mapper.view_lookup.shape[1]),
+                              range(self._mapper.view_lookup.shape[0]))
         self._rv_lookup = dict([(idx, (x, y)) for x, y, idx in
                                 zip(X.flat, Y.flat, self._mapper.view_lookup.flat)])
 
@@ -173,14 +174,14 @@ class GeneralProjectionMapper(object):
     def mask_hemisphere(self, A, flatmap=True, mask_val=False):
         if self._used_hemisphere == 2:
             if not flatmap:
-                A[:, :, :(A.shape[2] / 2)] = mask_val
+                A[:, :, :int(A.shape[2] / 2)] = mask_val
             else:
-                A[:, :(A.shape[1] / 2)] = mask_val
+                A[:, :int(A.shape[1] / 2)] = mask_val
         elif self._used_hemisphere == 1:
             if not flatmap:
-                A[:, :, (A.shape[2] / 2):] = mask_val
+                A[:, :, int(A.shape[2] / 2):] = mask_val
             else:
-                A[:, (A.shape[1] / 2):] = mask_val
+                A[:, int(A.shape[1] / 2):] = mask_val
 
     @staticmethod
     def post_processing(IMG, log=False, exponent=None, normalize=None, per_pixel=True,
@@ -428,7 +429,7 @@ class VoxelArrayBaryMapper(GeneralProjectionMapper):
         out_G = numpy.zeros(self._mask3d.shape, dtype=float)
         out_B = numpy.zeros(self._mask3d.shape, dtype=float)
         out_count = numpy.zeros(self._mask3d.shape, dtype=float)
-        pbar = progressbar.ProgressBar()
+        pbar = progressbar.ProgressBar(maxval=len(value))
         self._sampled = []
 
         for _col, _path, _val, _pt in pbar(zip(self._cols, self._paths, value, smpl_pts)):

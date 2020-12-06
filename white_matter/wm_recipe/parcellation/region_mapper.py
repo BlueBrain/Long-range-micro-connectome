@@ -11,9 +11,9 @@ class RegionMapper(object):
         else:
             from white_matter.utils.data_from_config import read_config
             self.cfg = read_config(cfg_file)["BrainParcellation"]
-        self.region_names = map(str, self.cfg["region_names"])
-        self.module_names = map(str, self.cfg["module_names"])
-        self.source_names = map(str, self.cfg["projection_classes"])
+        self.region_names = list(map(str, self.cfg["region_names"]))
+        self.module_names = list(map(str, self.cfg["module_names"]))
+        self.source_names = list(map(str, self.cfg["projection_classes"]))
         self.module_idx = self.cfg["module_idx"]
         self.source_layers = self.cfg["class_to_layer"]
         self.source_filters = self.cfg["projection_class_fltrs"]
