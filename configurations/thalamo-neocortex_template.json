@@ -514,7 +514,7 @@
       "h5_cache": "cache/ptypes-tc/tree_model_final.h5",
       "p_func": "10 ** -x",
       "h5_dset": "tc",
-      "mat_tree_topology": "CONTROL_TOPOLOGY",
+      "mat_tree_topology": "normalized connection density",
       "json_cache": "cache/ptypes-tc/tree_model_final_tc.json"
     }
   },
