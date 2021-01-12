@@ -49,6 +49,8 @@ class PTypeWriter(object):
             src_valid = numpy.hstack([self.proj_str(src_type=source_name, hemi=hemi,
                                                     measurement='connection density') > 0
                                       for hemi in ['ipsi', 'contra']])
+            assert numpy.all(p_type_mdl._val_mask[:src_valid.shape[0], :] == src_valid),\
+                "Inconsistency in the h5 cache files for projection strength and p-type model {0}".format(source_name)
             src_mat = p_type_mdl.first_order_mat()
             for reg_from in self.mpr.region_names:
                 print("Getting interactions for %s" % reg_from)
