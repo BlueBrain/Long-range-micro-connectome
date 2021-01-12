@@ -85,7 +85,7 @@ class ProfileMixer(object):
         idx_to = self.mpr.module2idx(mod_to)
         pw_exists = [(self.pw_strength(src_type=_k)[:, idx_to][idx_fr] > 0)
                      for _k in kk]
-        N = map(numpy.sum, pw_exists)
+        N = list(map(numpy.sum, pw_exists))
         N = numpy.array(N).astype(float) / numpy.sum(N)
         result = numpy.vstack([n * self.profiles_s.patterns[_k]
                                for _k, n in zip(kk, N)]).sum(axis=0)

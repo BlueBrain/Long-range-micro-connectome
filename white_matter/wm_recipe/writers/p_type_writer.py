@@ -18,7 +18,7 @@ class PTypeWriter(object):
             for _v in v[1:]:
                 ret = ret + ', ' + ("%5.3f" % _v)
             return ret
-        n_chunks = numpy.maximum(len(v) / 10, 1)
+        n_chunks = int(numpy.maximum(len(v) / 10, 1))
         chunks = numpy.split(v, numpy.linspace(0, len(v), n_chunks + 1)[1:-1].astype(int))
         ret = line(chunks[0])
         for chunk in chunks[1:]:
