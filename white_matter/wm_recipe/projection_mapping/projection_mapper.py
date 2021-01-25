@@ -41,7 +41,7 @@ class ProjectionMapper(object):
             x = numpy.array(h5[src]['coordinates']['x'])
             y = numpy.array(h5[src]['coordinates']['y'])
             base_sys = h5[src]['coordinates'].attrs.get('base_coord_system', 'Allen Dorsal Flatmap') # TODO: make dataset
-        x = self.move_to_right_hemi(x)
+        y = self.move_to_right_hemi(y)
         return x, y, base_sys
 
     def for_target(self, src):
@@ -53,9 +53,9 @@ class ProjectionMapper(object):
                     base_sys = str(h5[src]['targets'][tgt]['coordinates/base_coord_system'].value)
                     var = h5[src]['targets'][tgt]['mapping_variance'][0]
                 if hemi == 'ipsi':
-                    x = self.move_to_right_hemi(x)
+                    y = self.move_to_right_hemi(y)
                 elif hemi == 'contra':
-                    x = self.move_to_left_hemi(x)
+                    y = self.move_to_left_hemi(y)
             except:
                 print("Insufficient data for projection {0} - {1}, {2}".format(src, tgt, hemi))
                 raise

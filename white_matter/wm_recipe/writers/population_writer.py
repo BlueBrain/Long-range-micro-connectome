@@ -29,7 +29,7 @@ class PopulationWriter(object):
         return str(self.__dict2str__(self.mpr.source_filters[source_name]))
 
     def __source_layer_str__(self, source_name):
-        return str(map(str, self.mpr.source_layers[source_name]))
+        return str(list(map(str, self.mpr.source_layers[source_name])))
 
     def __call__(self, fid):
         def single_population(reg_name, source_name):
