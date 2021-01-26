@@ -289,9 +289,26 @@ class GeneralProjectionMapper(object):
         return coverage_src, coverage_tgt
 
     def mapping_overlap(self, coord_sys, xy, min_dist=0.05):
-        src_y, src_x = numpy.nonzero(self._mask2d)
+        src_x, src_y = numpy.nonzero(self._mask2d)
         bary_src = self._bary.cart2bary(src_x, src_y)
         return self._mapping_overlap(bary_src, coord_sys, xy, min_dist=min_dist)
+
+    def _fit_func_permutation_only(self, abc, xy, *args, **kwargs):
+        from white_matter.wm_recipe.projection_mapping.contract import estimate_mapping_var
+
+        candidate = IrregularGridMapper(xy, interactive=False)
+        A = candidate.col(*xy.transpose())
+        permutations = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]]
+        errors = [numpy.abs(A[:, permutation] - abc).mean() for permutation in permutations]
+        idxx = numpy.argmin(errors)
+        solution = [coords[permutations[idxx]] for coords in candidate._coords]
+
+        col_sys = BarycentricConstrainedColors(*solution)
+        map_var = estimate_mapping_var(abc, col_sys.col(*xy.transpose()))
+        map_var = numpy.maximum(map_var, 0.25)
+        overlaps = self.mapping_overlap(col_sys, xy, min_dist=map_var)
+
+        return col_sys, map_var, overlaps, errors[idxx]
 
     def _fit_func(self, abc, xy, exponent=1.0, mul_angle=10.0, mul_overlap=10.0, opt_args={}):
         def _max_angle(pt):
@@ -340,6 +357,8 @@ class GeneralProjectionMapper(object):
         nz = numpy.nonzero(valid)
         abc = IMG[nz]
         xy = numpy.vstack(nz).transpose()
+        if bool(kwargs.pop("only_permutation", False)):
+            return self._fit_func_permutation_only(abc, xy, **kwargs)
         return self._fit_func(abc, xy, **kwargs)
 
     # noinspection PyUnboundLocalVariable
