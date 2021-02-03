@@ -430,8 +430,8 @@ class VoxelArrayBaryMapper(GeneralProjectionMapper):
         return cols, paths, zip(*nz2d)
 
     def paths_in_source_volume(self, mask3d):
-        nz3d = numpy.nonzero(mask3d.flat)[0]
-        return nz3d[numpy.in1d(nz3d, self._source_flat)]
+        nz3d = numpy.nonzero(mask3d.flat)[0]  # use three_d_to_flat_idx
+        return nz3d[numpy.in1d(nz3d, self._source_flat)]  # intersect1d?
 
     def prepare_for_source(self, src, interactive=True, contract=0.75):
         super(VoxelArrayBaryMapper, self).prepare_for_source(src, interactive=interactive,
