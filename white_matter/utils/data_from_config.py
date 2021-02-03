@@ -76,7 +76,7 @@ class ConfiguredDataSource(object):
         elif cfg.get("keys", None) == "str":
             self.patterns = dict([(str(k), v) for k, v in self.patterns.items()])
         if cfg.get("values", None) == "array":
-            self.patterns = dict([(k, numpy.array(v)) for k, v in self.patterns.items()])
+            self.patterns = dict([(k, numpy.array(v, dtype=float)) for k, v in self.patterns.items()])
         if "vals_nan" in cfg:
             for v in self.patterns.values():
                 for _nan in cfg["vals_nan"]:
@@ -84,8 +84,8 @@ class ConfiguredDataSource(object):
         self.N = len(self.patterns)
 
     def condense(self, idx_fr, idx_to, func=numpy.nansum):
-        z_fr = zip(idx_fr[:-1], idx_fr[1:])
-        z_to = zip(idx_to[:-1], idx_to[1:])
+        z_fr = list(zip(idx_fr[:-1], idx_fr[1:]))
+        z_to = list(zip(idx_to[:-1], idx_to[1:]))
         for k, v in self.patterns.items():
             self.patterns[k] = numpy.array([[func(v[fr[0]:fr[1], t[0]:t[1]])
                                              for t in z_to] for fr in z_fr])
