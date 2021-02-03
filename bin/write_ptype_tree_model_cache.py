@@ -27,8 +27,10 @@ def make_model_for_source(S, src, cfg, **kwargs):
     from white_matter.wm_recipe.p_types.ptype_tree_model import TreeInnervationModel
     F_topo = src_mat(S, src, cfg["mat_tree_topology"])
     F = src_mat(S, src, cfg["mat_predict_innervation"])
+    F_val_mask = src_mat(S, src, "connection density")
     mdl = TreeInnervationModel.from_con_mats(F_topo, F, **kwargs)
-    return mdl.T, mdl._val_mask
+    mdl._val_mask = (F_val_mask > 0)
+    return mdl.T, (F_val_mask > 0)
 
 
 def write_model_for_source(T, F, cfg):
