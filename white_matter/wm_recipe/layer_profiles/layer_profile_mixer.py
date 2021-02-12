@@ -64,18 +64,26 @@ class ProfileMixer(object):
         self.profiles_m = ModuleProfiles(cfg_file, self.mpr)
         self.modules = self.mpr.module_idx
         self.pw_strength = proj_strength
-        self._hierarchy = ['PO', 'ACAd', 'AIv', 'TEa', 'ACAv', 'MOs', 'VISC', 'ORBvl',
+        self._hierarchy = ['POL', 'VM', 'RE', 'PIL', 'PF',
+                           'ACAd', 'AIv', 'TEa', 'ACAv', 'MOs', 'VISC', 'ORBvl',
                            'SSp-un', 'VISa', 'VISpor', 'VISam', 'AUDpo', 'VISpm',
-                           'FRP', 'ORBl', 'PL', 'RSPagl', 'AId', 'ORBm', 'VISal',
+                           'FRP', 'ORBl', 'PL',
+                           'LP', 'PO', 'SMT', 'VAL', 'AV', 'LD', 'PT', 'PVT', 'CM',
+                           'RSPagl', 'AId', 'ORBm', 'VISal',
                            'VISrl', 'ILA', 'SSp-tr', 'RSPd', 'MOp', 'VISli', 'VISl',
                            'RSPv', 'SSs', 'SSp-bfd', 'VISpl', 'SSp-m', 'SSp-ul', 'AIp',
-                           'AUDd', 'SSp-ll', 'SSp-n', 'AUDp', 'VISp', 'VPM', 'VPL']  #TODO: Read from config
-        # Note: We assume that connections from PO are always feedback, from VPM and VPL always feedforward
-        self._m_hierarchy = ['prefrontal', 'anterolateral', 'medial', 'visual',
-                             'temporal', 'somatomotor', 'thalamus']
-        '''No hierarchy reported for 4 regions. We put them in the middle (index 20).'''
+                           'AUDd', 'SSp-ll', 'SSp-n', 'AUDp', 'VISp',
+                           'AMd', 'AMv', "LGd-sh", "LGd-co", 'LGd-ip', 'VPM', 'VPMpc', 'CL',
+                           "IMD", 'VPL', 'VPLpc', 'PCN', "MGd", "MGv", "MGm", "IAD"
+                           ]  #TODO: Read from config
+        # Core: always lowest in hier. matrix_m: always highest. The other two sometimes high, sometimes low.
+        # For now placed in middle.
+        self._m_hierarchy = ['t_matrix_m', 'prefrontal', 'anterolateral', 'medial',
+                             't_matrix_f', 't_il', 'visual',
+                             'temporal', 'somatomotor', 't_core']
+        '''No hierarchy reported for 4 regions. We put them in the middle (index 30).'''
         self.idx2hierarchy = [self._hierarchy.index(_x) if _x in self._hierarchy
-                              else 20 for _x in self.mpr.region_names]
+                              else 30 for _x in self.mpr.region_names]
         self.m_idx2hierarchy = [self._m_hierarchy.index(_x)
                                 for _x in self.mpr.module_names]
 
