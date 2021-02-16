@@ -120,10 +120,14 @@ class ProfileMixer(object):
         mod_to = self.mpr.idx2module(j)
         result = self.mix_module(source, mod_fr, mod_to)
         if use_hierarchy:
+            dir_idx = self.cfg.get("profile_directions", {  # Default value for backwards compatibility
+                "feedforward_indices": [0, 2, 4],
+                "feedback_indices": [1, 3, 5]
+            })
             if self.projection_is_ff(i, j):
-                result[[1, 3, 5]] *= 0.5
+                result[dir_idx["feedback_indices"]] *= 0.5
             else:
-                result[[0, 2, 4]] *= 0.5
+                result[dir_idx["feedforward_indices"]] *= 0.5
         return result
 
     def max(self, source, i, j, **kwargs):
