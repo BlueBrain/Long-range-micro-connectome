@@ -20,6 +20,11 @@ class LayerProfiles(ConfiguredDataSource):
         if self.cfg[self.__class__.relevant_section]["source"] == "digitize":
             for k, v in self.patterns.items():
                 self.patterns[k] = v ** 2
+        assert self.N == len(self.patterns)  # created in "parameterize"
+        self.fallback_profile = {  # For us in non-layered structures
+            "index": self.N,
+            "relative_densities": [{"layers": ["ALL"], "value": 1.0}]
+        }
 
     def __pattern_to_filenames__(self, pat):
         return dict([(i, pat % i) for i in range(1, self.N + 1)])
@@ -62,6 +67,7 @@ class ProfileMixer(object):
         self.cfg = read_config(cfg_file)["LayerProfiles"]
         self.profiles_s = SourceProfiles(cfg_file, self.mpr)
         self.profiles_m = ModuleProfiles(cfg_file, self.mpr)
+        self.profiles_spec = LayerProfiles(cfg_file=cfg_file)
         self.modules = self.mpr.module_idx
         self.pw_strength = proj_strength
         self._hierarchy = ['POL', 'VM', 'RE', 'PIL', 'PF',
@@ -131,8 +137,10 @@ class ProfileMixer(object):
         return result
 
     def max(self, source, i, j, **kwargs):
-        rel = self.mix(source, i, j, **kwargs)
-        return numpy.argmax(rel)
+        if self.mpr.has_layers(j):
+            rel = self.mix(source, i, j, **kwargs)
+            return numpy.argmax(rel)
+        return self.profiles_spec.fallback_profile["index"]
 
     def max_module(self, source, mod_fr, mod_to):
         rel = self.mix_module(source, mod_fr, mod_to)

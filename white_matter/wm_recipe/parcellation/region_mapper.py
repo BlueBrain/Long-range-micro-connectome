@@ -12,6 +12,7 @@ class RegionMapper(object):
             from white_matter.utils.data_from_config import read_config
             self.cfg = read_config(cfg_file)["BrainParcellation"]
         self.region_names = list(map(str, self.cfg["region_names"]))
+        self.layered_regions = list(map(str, self.cfg["layered_regions"]))
         self.module_names = list(map(str, self.cfg["module_names"]))
         self.source_names = list(map(str, self.cfg["projection_classes"]))
         self.module_idx = self.cfg["module_idx"]
@@ -25,6 +26,11 @@ class RegionMapper(object):
         if hasattr(idx, '__iter__'):
             return [self.region_names[i] for i in idx]
         return self.region_names[idx]
+
+    def has_layers(self, idx_or_name):
+        if isinstance(idx_or_name, str):
+            return idx_or_name in self.layered_regions
+        return self.idx2region(idx_or_name) in self.layered_regions
 
     def idx2module(self, idx):
         for k, v in self.module_idx.items():

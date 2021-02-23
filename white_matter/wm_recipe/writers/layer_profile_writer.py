@@ -19,4 +19,12 @@ class LayerProfileWriter(object):
                 fid.write('\t\t- layers: %s\n' % self.__layers2str__(l))
                 fid.write('\t\t  value: %f\n' % v)
             fid.write('\n')
+
+        fid.write('\t- name: %s\n' % (prof_name_pat % l_profiles.fallback_profile["index"]))
+        fid.write('\t  relative_densities:\n')
+        for entry in l_profiles.fallback_profile["relative_densities"]:
+            fid.write('\t\t- layers: %s\n' % self.__layers2str__(entry["layers"]))
+            fid.write('\t\t  value: %f\n' % entry["value"])
+        fid.write('\n')
+
         fid.write('\n')
