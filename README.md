@@ -35,6 +35,7 @@ Constraints will be identical to the ones used for the manuscript.
 ```
 write_wm_recipe.py ./configurations/wm-refined-neocortex_template.json
 ```
+__Note__: In lines 542 and 16069 of "wm-refined-neocortex_template.json" the path to a file called "voxel_model_manifest.json" is specified. This is a file used by the AIBS mouse-connectivity-models to configure the locations of certain cache and data files. If you have previously worked with the AIBS voxel model you can point the entries to your existing manifest file. This will avoid duplicate downloads of data from AIBS servers. If the specified file does not exist it will be created. By default (if you do not modify "wm-refined-neocortex_template.json"), the file will be created in the local directory. However note that a number of data files will also be downloaded to that location, so you might want to point the entry to another location. 
 
 ### Case 2: FORMALIZE ANATOMICAL CONSTRAINTS WITH CUSTOM CHANGES
 Write a yaml file specifying the anatomical constraints, but based on different anatomical data, assumptions or parcellations.

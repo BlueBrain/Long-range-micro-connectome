@@ -539,7 +539,7 @@
     ],
     "threshold_fraction": 0.05,
     "h5_cache": "cache/strength/projection_matrices.h5",
-    "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
+    "cache_manifest": "voxel_model_manifest.json",
     "per_projection_class_contra": {
       "source": "config",
       "_comment": "Digitized from Harris et al, Fig. 4",
@@ -16052,7 +16052,7 @@
   },
   "ProjectionMapping": {
     "h5_fn": "cache/mapping/voxel_mappings_wm_refinement_permutation_0_2_mix.h5",
-    "flatmap": "per_region_diffusion_flatmap_cc_both_directions_mixed_0_2_pp.nrrd",
+    "flatmap": "configurations/per_region_diffusion_flatmap_cc_both_directions_mixed_0_2_pp.nrrd",
     "plot_dir": "plots/white_matter/mapping_refined_permutation_0_2_mix",
     "hemi_mirror_at": 34,
     "pp_use": {
@@ -16066,7 +16066,7 @@
         0.25
       ]
     },
-    "cache_manifest": "/home/reimann/Documents/data/connectivity/voxel_model_manifest.json",
+    "cache_manifest": "voxel_model_manifest.json",
     "plot_extension": ".png",
     "pp_display": {
       "exponent": 1.0,
