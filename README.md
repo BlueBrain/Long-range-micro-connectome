@@ -6,7 +6,19 @@ Detailed information can be found in the [documentation](DOCUMENTATION.pdf).
 
 # Installation
 
-To install this repository, first a number of code dependencies have to be installed. The code depends on the python packages _allensdk_ and _mouse-connectivity-models_ of the Allen Institute for Brain Science (AIBS). They can be acquired from their github pages at https://github.com/AllenInstitute . For more detailed instructions and documentation of the packages refer to https://allensdk.readthedocs.io/en/latest/install.html .
+To install this repository, first a number of code dependencies have to be installed. The code depends on the python packages _allensdk_ and _mouse-connectivity-models_ of the Allen Institute for Brain Science (AIBS). They can be acquired from their github pages at https://github.com/AllenInstitute/AllenSDK and https://github.com/AllenInstitute/mouse_connectivity_models respectively. 
+
+Installing them and their respective dependencies can - to the best of our knowledge - be done with the following commands:
+```
+pip install six
+pip install numpy
+pip install sklearn
+pip install allensdk@git+https://github.com/AllenInstitute/AllenSDK.git
+pip install markupsafe==2.0.1
+pip install mouse-connectivity-models@git+https://github.com/AllenInstitute/mouse_connectivity_models.git
+```
+
+In case of difficulties with the installation of these dependencies, please refer to the AIBS documentation at https://allensdk.readthedocs.io/en/latest/ .
 
 Once the manual dependencies have been fulfilled, you can install this repository using the following command
 
