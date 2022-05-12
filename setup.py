@@ -16,9 +16,8 @@ setup(
     version="1.40",
     install_requires=[
         "h5py",
-        "allensdk>=0.14.5",
+        "allensdk@git+https://github.com/AllenInstitute/AllenSDK.git",
         "simplejson",
-        "mouse-connectivity-models@git+https://github.com/AllenInstitute/mouse_connectivity_models.git",
         "numpy",
         "progressbar",
         "PyYAML",
@@ -27,9 +26,11 @@ setup(
         "matplotlib",
         "python-louvain",
         "voxcell",
+        "mouse-connectivity-models@git+https://github.com/AllenInstitute/mouse_connectivity_models.git"
     ],
     dependency_links = [
       "git+github://github.com/AllenInstitute/mouse_connectivity_models.git",
+      "git+https://github.com/AllenInstitute/AllenSDK.git"
     ],
     packages=find_packages(),
     include_package_data=True,
