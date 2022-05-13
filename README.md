@@ -30,7 +30,7 @@ pip install git+https://github.com/BlueBrain/Long-range-micro-connectome.git
 As the purpose of this repository is to write a formalization of anatomical constraints on long-range connectivity, it really only has two use cases: Write the constraints as used by Blue Brain in their manuscript, or customize them beforehand.
 ### Case 1: FORMALIZE ANATOMICAL CONSTRAINTS AS IN THE PUBLISHED MANUSCRIPT
 Write a yaml file specifying the anatomical constraints on long-range connectivity in the mouse isocortex.
-This will create the file specifying the constraints as white_matter_FULL_RECIPE_v1p20.yaml.
+This will create the file specifying the constraints as _white_matter_FULL_RECIPE_v1p20.yaml_.
 Constraints will be identical to the ones used for the manuscript.
 ```
 write_wm_recipe.py ./configurations/wm-refined-neocortex_template.json
@@ -43,7 +43,7 @@ Write a yaml file specifying the anatomical constraints, but based on different 
 CUSTOM_FILE=/path/to/my/custom_template.json
 cp ./configurations/wm-refined-neocortex_template.json $CUSTOM_FILE
 ```
-At this point edit CUSTOM_FILE to update the underlying anatomical data to your liking. Refer to the [documentation](DOCUMENTATION.pdf) for details on the json tempplate file format. Then:
+At this point edit _CUSTOM_FILE_ to update the underlying anatomical data to your liking. Refer to the [documentation](DOCUMENTATION.pdf) for details on the json template file format. Then:
 ```
 # Update cached data related to the spatial mapping of long-range pathways
 write_projection_mapping_cache.py $CUSTOM_FILE  
@@ -62,5 +62,5 @@ write_wm_recipe.py $CUSTOM_FILE
 
 The development of this software was supported by funding to the Blue Brain Project, a research center of the École polytechnique fédérale de Lausanne (EPFL), from the Swiss government’s ETH Board of the Swiss Federal Institutes of Technology.
 
-Copyright (c) 2022-2022 Blue Brain Project/EPFL
+Copyright (c) 2022 Blue Brain Project/EPFL
 
